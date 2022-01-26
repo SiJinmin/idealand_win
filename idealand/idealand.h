@@ -31,6 +31,7 @@
 #include "context.h"
 #include "check.h"
 #include "string.h"
+#include "text.h"
 #include "print.h"
 #include "file.h"
 

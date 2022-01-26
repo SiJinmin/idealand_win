@@ -20,6 +20,8 @@ int idealand_check_set_runtime()
   char* dir = idealand_file_exe_dir(); if (dir == NULL) return -1;
   IdealandDataPath = idealand_file_mkdir(IdealandDataDirName, dir); if (IdealandDataPath == NULL ) return -1;
   printf("data dir = %s\n", IdealandDataPath);
+  IdealandConfPath = idealand_string(2048, NULL, "%s%s", dir, IdealandConfName); if (IdealandConfPath == NULL) return -1;
+  printf("conf path = %s\n", IdealandConfPath);
   if (idealand_file_change_work_dir(IdealandDataPath) < 0) return -1;
 
   printf("check runtime succeed.\n\n"); return 0;

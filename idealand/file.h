@@ -35,3 +35,13 @@ char* idealand_file_mkdir(const char* name, char* parent=NULL);
    name can be NULL; */
 INT8* idealand_file_send_info(const char* name, int no, INT64 size, int* pSendLen);
 
+
+
+/* open file for binary read, return NULL for error. 
+   caller should fclose(r) if not NULL */
+FILE* idealand_file_open(char* path, const char *mode= "rb");
+
+/* caller should provide char buf[max]
+   returns the read char count, or negative value for errors. */
+int idealand_file_read_all(char* path, char* buf, INT64 max, int utf8Bom=0, int textEnd=0);
+

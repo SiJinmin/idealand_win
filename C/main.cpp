@@ -4,28 +4,47 @@
 
 int __cdecl main(int argc, char** argv)
 {
-  int r = 0;
+  int r = 0; 
 
   idealand_set_terminal_encoding(); 
 
-  // 输入检查
-  if (argc < 4) { printf("命令格式: %s server collection start no [end no]\n", argv[0]); return -1; }
-  char* server = argv[1], * collection = argv[2]; int start = atoi(argv[3]), end = -1; if (argc >= 5) end = atoi(argv[4]);
-  if (idealand_check_string(server, 0, "server", __func__, IdealandMaxPathLen, 1) < 0) return -1;
-  if (idealand_check_filename(collection, "collection", __func__) < 0) return -1;
-  // if (argc == 3) all = 1; // 下载整个collection
-  if (start < 0) { printf("start(%d) must be not less than 0\n", start); return -1; }
-  if (end == -1) end = start;
-  if (end < start) { printf("end(%d) must be not less than start(%d)\n", end, start); return -1; }
-  printf("server = %s, collection = %s, start = %d, end = %d\n", server, collection, start, end);
-  void* args[] = { server, collection, &start, &end }; 
 
-  // 检查runtime
+  /* if (argc < 4) { printf("命令格式: %s server collection start no [end no]\n", argv[0]); return -1; }
+  char* server = argv[1], * collection = argv[2];  if (argc >= 5) end =
+  // if (argc == 3) all = 1; // 下载整个collection
+   */
+
+
+  // 读取配置文件
+  char buf_conf[IdealandConfMaxSize]; int read_conf = 0; IdealandKV confs[IdealandConfMaxItems];
+  char* server = NULL, * collection = NULL, * start_no = NULL, * end_no = NULL; int start = -1, end = -1; void* args[4];
+
   if ((r=idealand_check_set_runtime())<0) goto free1;
+
+  if((r=idealand_file_read_all(IdealandConfPath, buf_conf, IdealandConfMaxSize, 1))<0) goto free1;
+  if((r=idealand_text_conf(buf_conf, confs, IdealandConfMaxItems))<0) goto free1;
+  server=idealand_text_conf_value((char *)"server", confs, IdealandConfMaxItems);
+  collection = idealand_text_conf_value((char*)"collection", confs, IdealandConfMaxItems);
+  start_no = idealand_text_conf_value((char*)"start_no", confs, IdealandConfMaxItems);
+  end_no = idealand_text_conf_value((char*)"end_no", confs, IdealandConfMaxItems);
+  // printf("server=%s, collection=%s, start_no=%s, end_no=%s\n", server, collection, start_no, end_no);
+
+  if ((r=idealand_check_string(server, 0, "server", __func__, IdealandMaxPathLen, 1)) < 0) { goto free1; }
+  if ((r=idealand_check_filename(collection, "collection", __func__)) < 0) { goto free1; }
+
+  start = atoi(start_no), end = atoi(end_no);
+  if (start < 0) { printf("start(%d) must be not less than 0\n", start); r= -1; goto free1; }
+  if (end <0) end = start;
+  if (end < start) { printf("end(%d) must be not less than start(%d)\n", end, start); r = -1; goto free1; }
+
+  args[0] = server; args[1] = collection; args[2] = &start; args[3] = &end;
+  printf("server = %s, collection = %s, start = %d, end = %d\n", server, collection, start, end);
 
   r = idealand_socket_run(idealand_the_work, args);
   
-free1:  if(IdealandDataPath!=NULL) free(IdealandDataPath);
+free1:
+  if (IdealandConfPath != NULL) free(IdealandConfPath);
+  if(IdealandDataPath!=NULL) free(IdealandDataPath);
   return r;
 }
 

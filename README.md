@@ -1,2 +1,70 @@
-# idealand_win
-idealand v0.2 developed by visual studio community 2022
+﻿# 理想乐园元宇宙（Idealand）v0.2软件发布说明书
+
+理想乐园元宇宙（Idealand）的目标是成为一个有利于大家的日常生活的有趣的元宇宙平台，目前还处于练习使用C语言编程的初级阶段，提供的功能十分简单脆弱，相信未来经过我们的持续努力，它一定会走向强大稳健。
+
+这是我们的第一次软件发布，版本号为0.2，它提供了批量下载文件的功能，可通过命令参数指定下载文件的起始号和结束号，支持断线重连和智能的断点续传。此外它有如下特点：
+1. 绿色软件，仅有2个大小均为1.3M的exe文件分别运行在服务端和客户端，没有其它任何文件。
+2. 自由免费开源软件，所有源代码将通过MIT许可发布到github。
+3. 编程语言为C，十分高效。
+4. 代码结构严谨，开发者对代码的质量要求很高，这包括抗攻击性、架构的合理性等。
+
+
+# 下面介绍一下如何使用
+
+目前仅能在windows上运行，分为服务端和客户端两个exe文件，服务器必须有公网IP，且允许客户端通过端口号27015进行TCP连接
+
+服务端使用方法：
+1. 通过命令行运行服务端exe（Server.exe），运行以后会自动在Server.exe所在的目录创建一个叫IdealandData的文件夹，这里就是放置给用户下载文件的地方。
+2. 在IdealandData文件夹里面创建的文件夹叫集合，可创建任意多个集合。
+3. 每个集合文件夹里面可放置任意多个文件，这些文件必须以四个数字开头，且不能包含中文，比如0001.mp4, 0002.yujia.mp4等。
+
+客户端使用方法：
+1. 通过命令行执行客户端exe（C.exe），命令的格式为：C 服务器域名或者IP 下载集合名 起始文件号 结束文件号
+比如：C 209.105.242.69 miaojin_yujia 1 10
+这个命令就是从IP为209.105.242.69的服务上下载miaojin_yujia这个集合里面的从0001*到0010*这10个文件。
+2. 可以随时通过ctr+c终止下载，因为C.exe有智能的断点续传功能，下次运行相同的命令时，会自动扫描现有的已下载的文件的大小并进行断点续传。
+
+
+# 如何参与开发
+
+请用visual studio community 2022打开.sln文件
+
+
+# 理想乐园元宇宙（Idealand）软件编码规范说明
+
+A 函数返回值规范
+
+  默认的函数返回值规则为：
+  1. 返回值类型为int或者INT64
+  2. 负数表示是错误代码
+      -1 means system error 
+      -2 means socket connection or transfer error
+      -3 means cannot open specified file path
+      -4 means not found
+  3. 整数和零表示是成功和有效的返回值
+
+  符合默认规则的函数不必对返回值进行说明，而不符合此规则的返回值则应在注释中说明。
+  
+
+B 资源释放说明  
+
+  如果函数里面生成了资源且不能立刻释放，应注明caller释放资源的方法和条件
+
+
+C 命名规则
+
+  1. 所有变量均以idealand开头，以作为名称空间。
+  2. 除了idealand作为总名称空间，还有子名称空间，子名称空间可以有多层，比如idealand_socket，idealand_string，idealand_socket_check
+  3. 常规函数以idealand_subnamespaces_function_name的方式命名，比如 idealand_socket_send
+  4. #define常量、const常量、typedef的类型以IdealandTheName的方式命名，比如IdealandBufferSize
+
+
+
+
+
+
+
+
+
+
+

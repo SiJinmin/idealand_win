@@ -8,7 +8,9 @@ const int IdealandMaxPathLen = 3000;
 const int IdealandDirMaxFilesCount = 9000;
 const INT64 IdealandMaxSeconds = 60LL*60*24*365*1000000; // 100万年
 const char IdealandDataDirName[] = "IdealandData";
-char* IdealandDataPath = NULL;
+const char IdealandConfName[] = "idealand.conf";
+const int IdealandConfMaxSize = 20480, IdealandConfMaxItems = 200; // 2k
+char* IdealandDataPath = NULL, *IdealandConfPath=NULL;
 
 
 const char IdealandGoogleApiKey[] = "AIzaSyBUW0bQL_5immPnsCQ4xF-LDUYOSon7sYI";

@@ -59,16 +59,21 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
   // 告知客户端文件是否存在，剩下的字节数和文件名
   INT8* pSendInfo = NULL; int sendLen = 0;
   pSendInfo = idealand_file_send_info(name, no, remainSize, &sendLen);  if (pSendInfo == NULL) { return -1; }
+  printf("tell client the file info: %s no=%d, remain=%d, sent length=%d\n", name, no, (int)remainSize, sendLen);
   if ((r = idealand_socket_send(p, pSendInfo, sendLen)) != sendLen) goto free1;
+  printf("tell client the file info succeed: sent length=%d\n", r);
+
   if (remainSize > 0){ r = idealand_socket_file_read(collection, name, clientSize, fileSize, p, buf); }
 
-free1: free(pSendInfo); 
+free1: 
+  if(pSendInfo!=NULL) free(pSendInfo);
   return r;
 }
 
 
 int idealand_socket_file_read(char* collection, char *name, INT64 clientSize, INT64 fileSize,  SOCKET *p, INT8* buf)
 {
+  printf("sending file content to client\n");
   int r=0; int read=0, total = 0, preCharCount = 0; time_t start, now, timeStep = 5, usedSeconds = 0;
 
   if ((r = idealand_check_filename(collection, "collection", __func__)) < 0) { return r; }
@@ -80,7 +85,7 @@ int idealand_socket_file_read(char* collection, char *name, INT64 clientSize, IN
 
   // 读取文件内容
   char* path = idealand_string(1024, NULL, "%s/%s", collection, name); if (path == NULL) return -1;
-  FILE* pf = NULL; if (fopen_s(&pf, path, "rb") != 0) { idealand_error("could not open file (%s) for binary read.", path); r = -1; goto free1; }
+  FILE* pf = NULL;  if ((pf = idealand_file_open(path)) == NULL) { r = -1; goto free1; }
 
   // 发送剩下的字节
   fseek(pf, (long)clientSize, SEEK_SET); time(&start);
@@ -98,11 +103,11 @@ int idealand_socket_file_read(char* collection, char *name, INT64 clientSize, IN
     if (r<0 || read < IdealandBufferSize) break;
   } while (read == IdealandBufferSize);
 
-  //inFile.close();
- free1: free(path);
-    return r;
+free1: 
+  if(pf!=NULL) fclose(pf);
+  if(path!=NULL) free(path);
+  return r;
 }
-
 
 
 
@@ -137,10 +142,10 @@ int idealand_socket_file_receive(const char* collection, int no, INT64 clientSiz
   if (idealand_file_exist(collection, 2) < 0) { path = idealand_file_mkdir(collection);  if (path == NULL) return -1; else { free(path); path = NULL; } }
   path = idealand_string(1024, NULL, "%s/%s", collection, name); if (path == NULL) return -1;
   if (idealand_file_exist(path, 2) >= 0) { idealand_error("cannot create file as the same name dir exists: %s", path); r = -1; goto free1; }
-  if(fopen_s(&pf, path, "ab") != 0) { idealand_error("could not open file (%s) for binary append.", path); r = -1; goto free1; }
+  if ((pf = idealand_file_open(path, "ab")) == NULL) { r = -1; goto free1; }
 
   // 已下载完毕的情况
-  if (remainSize <= 0) { printf("download already completed\n"); fclose(pf); return 0; }
+  if (remainSize <= 0) { printf("download already completed\n"); r = 0; goto free1; }
 
   // 开始下载
   fileSize = remainSize + clientSize;
@@ -153,13 +158,14 @@ int idealand_socket_file_receive(const char* collection, int no, INT64 clientSiz
     time(&now); if (usedSeconds == 0 || now - start > usedSeconds + timeStep || total + clientSize >= fileSize || r<0 || read<=0)
     {
       usedSeconds = now - start;
-      preCharCount = idealand_print_transfer_speed(usedSeconds, total, clientSize, fileSize, preCharCount); if (preCharCount == -1) { r = -1; goto free2; }
-      if (total + clientSize > fileSize) { idealand_error("file download size greater than remain size.\n"); r = -1; goto free2; }
+      preCharCount = idealand_print_transfer_speed(usedSeconds, total, clientSize, fileSize, preCharCount); if (preCharCount == -1) { r = -1; goto free1; }
+      if (total + clientSize > fileSize) { idealand_error("file download size greater than remain size.\n"); r = -1; goto free1; }
     }    
-    if (total + clientSize == fileSize || r<0) { goto free2; }
+    if (total + clientSize == fileSize || r<0) { goto free1; }
   } while (read > 0);
 
-free2: fclose(pf); 
-free1: free(path);  
+free1: 
+  if(pf!=NULL) fclose(pf); 
+  if(path!=NULL) free(path);  
   return r;
 }

@@ -110,3 +110,33 @@ INT8* idealand_file_send_info(const char *name, int no, INT64 size, int* pSendLe
 }
 
 
+
+
+FILE* idealand_file_open(char* path, const char *mode)
+{
+  if (idealand_check_pointer(path, "path", __func__) < 0) { return NULL; }
+
+  FILE* pf = NULL; 
+  if (fopen_s(&pf, path, mode) != 0) idealand_error("could not open file (%s) for binary read.", path);
+  return pf;
+}
+
+int idealand_file_read_all(char* path, char *buf, INT64 max, int utf8Bom, int textEnd)
+{
+  int r = 0;
+  if (idealand_check_pointer(path, "path", __func__) < 0) { return -1; }
+  if (idealand_check_pointer(buf, "buf", __func__) < 0) { return -1; }
+  if (idealand_check_size(max, "max", __func__) < 0) { return -1; }
+  if (utf8Bom) textEnd = 1;
+
+  FILE* pf = NULL; 
+  if ((pf = idealand_file_open(path)) == NULL) { r = -1; goto free1; }
+  if (utf8Bom) { if ((r = fseek(pf, 3, SEEK_SET)) != 0) { r = -1; goto free1; } }  
+  if ((r = (int)fread_s(buf, max - 1, 1, max - 1, pf)) < 0) { r = -1; goto free1; }
+  else if(textEnd) buf[r] = 0;
+
+free1: if (pf != NULL) fclose(pf);
+  return r;
+}
+
+
