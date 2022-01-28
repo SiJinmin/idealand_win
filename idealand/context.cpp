@@ -1,9 +1,6 @@
-﻿
-
-
-void idealand_error(const char* format, ...)
+﻿void idealand_error(const char* format, ...)
 {
-  printf("\nidealand error: "); va_list args; va_start(args, format); vprintf(format, args); va_end(args); printf("\n");
+  va_list args; printf("\nidealand error: "); va_start(args, format); vprintf(format, args); va_end(args); printf("\n");
 }
 
 
@@ -20,7 +17,7 @@ int idealand_check_set_runtime()
   char* dir = idealand_file_exe_dir(); if (dir == NULL) return -1;
   IdealandDataPath = idealand_file_mkdir(IdealandDataDirName, dir); if (IdealandDataPath == NULL ) return -1;
   printf("data dir = %s\n", IdealandDataPath);
-  IdealandConfPath = idealand_string(2048, NULL, "%s%s", dir, IdealandConfName); if (IdealandConfPath == NULL) return -1;
+  IdealandConfPath = idealand_string(2048, NULL, (char*)"%s%s", dir, IdealandConfName); if (IdealandConfPath == NULL) return -1;
   printf("conf path = %s\n", IdealandConfPath);
   if (idealand_file_change_work_dir(IdealandDataPath) < 0) return -1;
 
@@ -30,6 +27,6 @@ int idealand_check_set_runtime()
 
 void* idealand_malloc(INT64 size)
 {
-  if (idealand_check_malloc_size(size, "size", __func__) < 0) { return NULL; }
+  if (idealand_check_malloc_size(size, (char*)"size", (char*)__func__) < 0) { return NULL; }
   void* r = malloc(size); if (r == NULL) { idealand_error("malloc %lld bytes fail.", size); } return r;
 }

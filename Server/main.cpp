@@ -6,10 +6,20 @@ int __cdecl main(int argc, char** argv)
 {  
   int r = 0;
 
-  idealand_set_terminal_encoding();
+  idealand_set_terminal_encoding(); setlocale(LC_ALL, ".UTF8");
+  /*  
+  wprintf(L"宽中文\n"); printf("我1\n"); idealand_print_encoding("我1");  
+  IdealandFd fd; char name[IdealandMaxNameLen] = {0}; idealand_file_info("1*1", &fd, 1, name); idealand_print_encoding(fd.name);  
+  */
 
-  if ((r=idealand_check_set_runtime())<0) return r;
-  return idealand_socket_run(idealand_the_work, NULL);
+  if ((r = idealand_check_set_runtime()) < 0) goto free1;
+
+  idealand_socket_run(idealand_the_work, NULL);
+
+free1:
+  if (IdealandConfPath != NULL) free(IdealandConfPath);
+  if (IdealandDataPath != NULL) free(IdealandDataPath);
+  return r;
 }
 
 

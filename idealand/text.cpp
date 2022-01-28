@@ -1,9 +1,9 @@
 ﻿int idealand_text_conf(char* text, IdealandKV* pKvs, int maxKVs)
 {
   int r = 0;
-  if ((r = idealand_check_pointer(text, "text", __func__)) < 0) return r;
-  if ((r = idealand_check_pointer(pKvs, "pKvs", __func__)) < 0) return r;
-  if ((r = idealand_check_size(maxKVs, "maxKVs", __func__)) < 0) return r;
+  if ((r = idealand_check_pointer(text, (char*)"text", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_pointer(pKvs, (char*)"pKvs", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_size(maxKVs, (char*)"maxKVs", (char*)__func__)) < 0) return r;
 
   char* p = text, c; int lineStart = 1, commentLine = 0, gotKey=0, remain= maxKVs;
   while (remain>0 && (c = *p++))
@@ -38,9 +38,9 @@
 char* idealand_text_conf_value(char* key, IdealandKV* pKvs, int maxKVs)
 {
   int r = 0;
-  if ((r = idealand_check_pointer(key, "key", __func__)) < 0) return NULL;
-  if ((r = idealand_check_pointer(pKvs, "pKvs", __func__)) < 0) return NULL;
-  if ((r = idealand_check_size(maxKVs, "maxKVs", __func__)) < 0) return NULL;
+  if ((r = idealand_check_pointer(key, (char*)"key", (char*)__func__)) < 0) return NULL;
+  if ((r = idealand_check_pointer(pKvs, (char*)"pKvs", (char*)__func__)) < 0) return NULL;
+  if ((r = idealand_check_size(maxKVs, (char*)"maxKVs", (char*)__func__)) < 0) return NULL;
 
   for (int i = 0; i < maxKVs; i++)
   {

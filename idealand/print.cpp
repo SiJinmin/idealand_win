@@ -3,7 +3,7 @@
 
 void idealand_print_clear(int preCharCount)
 {
-  if (idealand_check_int(preCharCount, "preCharCount", __func__, 1000, 0) < 0) { return; }
+  if (idealand_check_int(preCharCount, (char*)"preCharCount", (char*)__func__, 1000, 0) < 0) { return; }
   while (preCharCount-- > 0) printf("\b \b");
 }
 
@@ -12,11 +12,11 @@ void idealand_print_clear(int preCharCount)
 int idealand_print_transfer_speed(INT64 usedSeconds, INT64 transferedSize, INT64 clientSize, INT64 fileSize, int preCharCount)
 {
   int r = 0;
-  if ((r = idealand_check_seconds(usedSeconds, "usedSeconds", __func__)) < 0) return r;
-  if ((r = idealand_check_size(transferedSize, "transferedSize", __func__)) < 0) return r;
-  if ((r = idealand_check_size(clientSize, "clientSize", __func__)) < 0) return r;
-  if ((r = idealand_check_size(fileSize, "fileSize", __func__, 1)) < 0) return r;
-  if ((r=idealand_check_int(preCharCount, "preCharCount", __func__, 1000, 0)) < 0) return r;
+  if ((r = idealand_check_seconds(usedSeconds, (char*)"usedSeconds", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_size(transferedSize, (char*)"transferedSize", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_size(clientSize, (char*)"clientSize", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_size(fileSize, (char*)"fileSize", (char*)__func__, 1)) < 0) return r;
+  if ((r=idealand_check_int(preCharCount, (char*)"preCharCount", (char*)__func__, 1000, 0)) < 0) return r;
 
   double percentage = 100.0 * (transferedSize + clientSize) / fileSize;
   INT64 remainSeconds = 0, speed = 0;
@@ -33,3 +33,15 @@ int idealand_print_transfer_speed(INT64 usedSeconds, INT64 transferedSize, INT64
   if (totalText != NULL)free(totalText); if (usedTime != NULL)free(usedTime); if (remainTime != NULL)free(remainTime); if (speedText != NULL)free(speedText);
   return r;
 }
+
+void idealand_print_encoding(char * str)
+{
+  if (str == NULL) return;
+
+  UINT8 c; UINT8* p = (UINT8*)str; while (c = *p++)
+  {
+    printf("%hx(%u) ", c, c);
+  }
+  printf("\n");
+}
+

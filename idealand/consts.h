@@ -1,19 +1,19 @@
 ﻿/// Idealand consts and global data
-const char IdealandPathSep = '\\';
-const char IdealandPathSep2 = '/';
-const char IdealandNameExcludeChars[] = {'\\','/',':','*','?','"','<','>','|'};
+char IdealandPathSep = '\\';
+char IdealandPathSep2 = '/';
+char IdealandNameExcludeChars[] = {'\\','/',':','*','?','"','<','>','|'};
 const int IdealandNameExcludeCharsCount = (int)(sizeof(IdealandNameExcludeChars) / sizeof(char));
 const int IdealandMaxNameLen = 300;
 const int IdealandMaxPathLen = 3000;
 const int IdealandDirMaxFilesCount = 9000;
 const INT64 IdealandMaxSeconds = 60LL*60*24*365*1000000; // 100万年
-const char IdealandDataDirName[] = "IdealandData";
-const char IdealandConfName[] = "idealand.conf";
+char IdealandDataDirName[] = "IdealandData";
+char IdealandConfName[] = "idealand.conf";
 const int IdealandConfMaxSize = 20480, IdealandConfMaxItems = 200; // 2k
 char* IdealandDataPath = NULL, *IdealandConfPath=NULL;
 
 
-const char IdealandGoogleApiKey[] = "AIzaSyBUW0bQL_5immPnsCQ4xF-LDUYOSon7sYI";
+char IdealandGoogleApiKey[] = "AIzaSyBUW0bQL_5immPnsCQ4xF-LDUYOSon7sYI";
 
 
 const int IdealandPointerSize = sizeof(void *);

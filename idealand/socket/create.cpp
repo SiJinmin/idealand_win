@@ -4,8 +4,8 @@
 int idealand_socket_create_listen(struct addrinfo* pAddr, SOCKET* p)
 {
   int r;
-  if ((r = idealand_check_pointer(pAddr, "pAddr", __func__)) < 0) return r;
-  if ((r = idealand_socket_check_pointer(p, "p", __func__, 1, 1)) < 0) return r;
+  if ((r = idealand_check_pointer(pAddr, (char*)"pAddr", (char*)__func__)) < 0) return r;
+  if ((r = idealand_socket_check_pointer(p, (char*)"p", (char*)__func__, 1, 1)) < 0) return r;
 
   printf("creating listen socket...\n");
   *p = socket(pAddr->ai_family, pAddr->ai_socktype, pAddr->ai_protocol);
@@ -23,8 +23,8 @@ int idealand_socket_create_listen(struct addrinfo* pAddr, SOCKET* p)
 int idealand_socket_create_connect(struct addrinfo* pAddr, SOCKET* p)
 {
   int r;
-  if ((r = idealand_check_pointer(pAddr, "pAddr", __func__)) < 0) return r;
-  if ((r = idealand_socket_check_pointer(p, "p", __func__, 1, 1)) < 0) return r;
+  if ((r = idealand_check_pointer(pAddr, (char*)"pAddr", (char*)__func__)) < 0) return r;
+  if ((r = idealand_socket_check_pointer(p, (char*)"p", (char*)__func__, 1, 1)) < 0) return r;
 
   printf("creating connect socket...\n");
   struct addrinfo* pAddr2 = NULL; for (pAddr2 = pAddr; pAddr2 != NULL; pAddr2 = pAddr2->ai_next)

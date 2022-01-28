@@ -21,11 +21,15 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
+#include <locale.h>
+#include <TCHAR.h>
 #include <io.h>
 #include <sys/types.h> 
 #include <sys/stat.h>
 #include <Windows.h>
+#include <wingdi.h>
 #include "consts.h"
 #include "structs.h"
 #include "context.h"
@@ -34,6 +38,7 @@
 #include "text.h"
 #include "print.h"
 #include "file.h"
+
 
 
 

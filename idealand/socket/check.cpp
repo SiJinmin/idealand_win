@@ -5,7 +5,7 @@ int idealand_socket_check_pointer(SOCKET* p, const char* name, const char* funct
 {
   if (p == NULL || *p == INVALID_SOCKET)
   {
-    if (allowInvalid) return 0; else { idealand_error("socket %s cannot be NULL or INVALID_SOCKET in %s.", name, functionName); return -1; }
+    if (allowInvalid) return 0; else { idealand_error((char*)"socket %s cannot be NULL or INVALID_SOCKET in %s.", name, functionName); return -1; }
   }
   else
   {
