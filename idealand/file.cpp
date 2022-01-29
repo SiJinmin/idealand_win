@@ -32,13 +32,13 @@ int idealand_file_exist(char* path, int file_dir)
 
 
 
-INT64 idealand_file_info(char* pattern, IdealandFd* pf, int print, char* name)
+INT64 idealand_get_file_info(char* pattern, IdealandFd* pf, int print)
 {
   int r = 0;
   if ((r = idealand_check_string(pattern, 0, (char*)"pattern", (char*)__func__, IdealandMaxPathLen, 1)) < 0) { return r; }
   if ((r = idealand_check_pointer(pf, (char*)"pf", (char*)__func__)) < 0) { return r; }
 
-  intptr_t fHandle; // wchar_t wpattern[IdealandMaxNameLen]; idealand_string_utf8_to_wchar(pattern, wpattern, IdealandMaxNameLen - 1);
+  intptr_t fHandle; 
   if ((fHandle = _findfirst(pattern, pf)) == -1) { if (print) printf("cannot find file: %s\n", pattern); return -1; } 
   _findclose(fHandle); 
   // if(name!=NULL) idealand_string_wchar_to_utf8(pf->name, name, IdealandMaxNameLen - 1);
@@ -50,7 +50,7 @@ INT64 idealand_file_info(char* pattern, IdealandFd* pf, int print, char* name)
 
   return pf->size;
 }
-INT64 idealand_file_info(char* collection, int no, IdealandFd* pf, int print, char *name)
+INT64 idealand_get_file_info(char* collection, int no, IdealandFd* pf, int print)
 {
   INT64 r = 0;
   if ((r = idealand_check_filename(collection, (char*)"collection", (char*)__func__)) < 0) { return r; }
@@ -58,7 +58,7 @@ INT64 idealand_file_info(char* collection, int no, IdealandFd* pf, int print, ch
   if ((r = idealand_check_pointer(pf, (char*)"pf", (char*)__func__)) < 0) { return r; }
 
   char* search = idealand_string(IdealandMaxPathLen, NULL, (char*)"%s/%04d*", collection, no); if (search == NULL) { return -1; }
-  r = idealand_file_info(search, pf, print, name); free(search); return r;
+  r = idealand_get_file_info(search, pf, print); free(search); return r;
 }
 
 

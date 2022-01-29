@@ -2,11 +2,11 @@
 #include "../idealand/socket/socket.cpp"
 
 
-int __cdecl main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   int r = 0; 
 
-  idealand_set_terminal_encoding(); 
+  idealand_set_encoding(); 
 
 
   // 读取配置文件

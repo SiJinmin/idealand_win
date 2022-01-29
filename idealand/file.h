@@ -12,12 +12,12 @@ int idealand_file_exist(char* path, int file_dir);
 
 /* return file size in bytes; -1 for not existing file;
    other negative values if other errors occur; */
-INT64 idealand_file_info(char* path, IdealandFd* pf, int print = 0, char* name=NULL);
-inline INT64 idealand_file_info(const char* path, IdealandFd* pf, int print = 0, char* name = NULL)
-{ return idealand_file_info((char*)path, pf, print, name); }
+INT64 idealand_get_file_info(char* path, IdealandFd* pf, int print = 0);
+inline INT64 idealand_get_file_info(const char* path, IdealandFd* pf, int print = 0)
+{ return idealand_get_file_info((char*)path, pf, print); }
 /* return file size in bytes; -1 for not existing file;
    other negative values if other errors occur; */
-INT64 idealand_file_info(char* dir, int no, IdealandFd* pf, int print = 0, char* name=NULL);
+INT64 idealand_get_file_info(char* dir, int no, IdealandFd* pf, int print = 0);
 
 
 

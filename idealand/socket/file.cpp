@@ -14,8 +14,8 @@ int idealand_socket_file_request(SOCKET* p, char* collection, int no, INT8** ppS
   printf("requesting file from server, collection = %s, no = %d \n", collection, no);
 
   // 检查文件是否存在，获取文件信息
-  IdealandFd fd; char name[IdealandMaxNameLen]; INT64 clientSize = idealand_file_info(collection, no, &fd, 0, name);
-  if (clientSize >= 0) { printf("existing %s/%s size = %I64d\n", collection, name, clientSize); } else clientSize = 0;
+  IdealandFd fd; INT64 clientSize = idealand_get_file_info(collection, no, &fd);
+  if (clientSize >= 0) { printf("existing %s/%s size = %I64d\n", collection, fd.name, clientSize); } else clientSize = 0;
 
   // 发送请求
   if (*ppSendInfo == NULL)
@@ -52,7 +52,7 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
 
   // 查找文件
   IdealandFd fd; INT64 fileSize = 0, remainSize = 0;
-  if ((fileSize=idealand_file_info(collection, no, &fd)) >= 0 )
+  if ((fileSize=idealand_get_file_info(collection, no, &fd)) >= 0 )
   {
     remainSize = fileSize - clientSize;
     printf("server file size = %I64d, remain %I64d to send\n", fileSize, remainSize);

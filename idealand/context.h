@@ -5,8 +5,19 @@ typedef int (*IdealandWork)(void** args);
 
 // idealand.cpp
 int idealand_the_work(void** args);
-/* should be place at beginning as it may clears screen */
-inline void idealand_set_terminal_encoding(){  system("CHCP 65001");  }
+
+
+/*
+wprintf(L"宽中文\n"); printf("我1\n"); idealand_print_encoding("我1");
+IdealandFd fd; char name[IdealandMaxNameLen] = {0}; idealand_get_file_info("1*1", &fd, 1); idealand_print_encoding(fd.name);
+*/
+/* CHCP 65001 should be place at beginning as it may clears screen */
+inline void idealand_set_encoding() 
+{ 
+  system("CHCP 65001"); setlocale(LC_ALL, ".UTF8"); printf("set encoding to utf8\n");
+}
+
+
 int idealand_check_set_runtime();
 /* caller should free(r) is not NULL. */
 void* idealand_malloc(INT64 size);
