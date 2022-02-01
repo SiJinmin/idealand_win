@@ -3,8 +3,8 @@
 
 char* idealand_string(int max, int *pcount, char* format, ...)
 {
-  if (idealand_check_malloc_size(max, (char*)"max", (char*)__func__) < 0) { return NULL; }
-  if (idealand_check_pointer((void *)format, (char*)"format", (char*)__func__) < 0) return NULL;
+  if (idealand_check_malloc_size(max, (char*)"max", __func__) < 0) { return NULL; }
+  if (idealand_check_pointer((void *)format, (char*)"format", __func__) < 0) return NULL;
 
   char* buf = (char*)idealand_malloc(max); if (buf == NULL) { return NULL; }
   va_list args; va_start(args, format); int count = vsprintf_s(buf, max - 1, format, args);  va_end(args);
@@ -29,7 +29,7 @@ void idealand_string_replace(char from, char to, char* str)
 INT64 idealand_string_remove_repeat(char repeat, char* str)
 {
   int r = 0;
-  if ((r = idealand_check_pointer(str, (char*)"str", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_pointer(str, (char*)"str", __func__)) < 0) return r;
 
   INT64 len = strlen(str), end = len - 1, repeatCount = 0, repeatCount1, i = len, start; char c;
   while (--i >= 0)
@@ -53,7 +53,7 @@ INT64 idealand_string_remove_repeat(char repeat, char* str)
 char *idealand_string_normalize_path(char* path, int dirEnd)
 {
   int r = 0;
-  if ((r = idealand_check_path(path, (char*)"path", (char*)__func__)) < 0) return NULL;
+  if ((r = idealand_check_path(path, (char*)"path", __func__)) < 0) return NULL;
 
   idealand_string_replace(IdealandPathSep2, IdealandPathSep, path);
   idealand_string_remove_repeat(IdealandPathSep, path);
@@ -71,7 +71,7 @@ char *idealand_string_normalize_path(char* path, int dirEnd)
 
 char* idealand_string_time_length(INT64 seconds, int full, int* pcount)
 {
-  if (idealand_check_seconds(seconds, (char*)"seconds", (char*)__func__) < 0) { return NULL; }
+  if (idealand_check_seconds(seconds, (char*)"seconds", __func__) < 0) { return NULL; }
 
   INT64 bufLen = 1024, bufLen1 = bufLen - 1; char* r = (char*)idealand_malloc(bufLen); if (r == NULL) { return NULL; }
   INT64 parts[4]; char* partNames[] = {(char*)"seconds",(char*)"minutes",(char*)"hours",(char*)"days"};
@@ -95,7 +95,7 @@ char* idealand_string_time_length(INT64 seconds, int full, int* pcount)
 }
 char* idealand_string_size(INT64 bytes, int full, int* pcount)
 {
-  if (idealand_check_size(bytes, (char*)"bytes", (char*)__func__) < 0) { return NULL; }
+  if (idealand_check_size(bytes, (char*)"bytes", __func__) < 0) { return NULL; }
 
   if (bytes < 0) { idealand_error("bytes(%I64d) must be not less than 0, in idealand_string_size", bytes); return NULL; }
   INT64 bufLen = 1024, bufLen1 = bufLen - 1; char* r = (char*)idealand_malloc(bufLen); if (r == NULL) { return NULL; }
@@ -119,7 +119,7 @@ char* idealand_string_size(INT64 bytes, int full, int* pcount)
 INT64 idealand_string_index(char c, char* str)
 {
   int r = 0;
-  if ((r=idealand_check_pointer(str, (char*)"str", (char*)__func__)) < 0) return r;
+  if ((r=idealand_check_pointer(str, (char*)"str", __func__)) < 0) return r;
 
   INT64 len = strlen(str); for(INT64 i=0;i<len;i++)
   {
@@ -130,7 +130,7 @@ INT64 idealand_string_index(char c, char* str)
 INT64 idealand_string_rindex(char c, char* str)
 {
   int r = 0;
-  if ((r = idealand_check_pointer(str, (char*)"str", (char*)__func__)) < 0) return r;
+  if ((r = idealand_check_pointer(str, (char*)"str", __func__)) < 0) return r;
 
   INT64 len = strlen(str); while (--len >= 0)
   {
@@ -145,11 +145,11 @@ INT64 idealand_string_rindex(char c, char* str)
 INT64 idealand_string_utf8(char* str, INT64 *pAsciiCount, INT64* pOtherCount, char ***pppChars, int maxChars)
 {
   int r = 0;
-  if ((r = idealand_check_pointer((void *)str, (char*)"str", (char*)__func__)) < 0) return r;
-  if ((r= idealand_check_malloc_size(maxChars, (char*)"maxChars", (char*)__func__)) < 0) { return r; }
+  if ((r = idealand_check_pointer((void *)str, (char*)"str", __func__)) < 0) return r;
+  if ((r= idealand_check_malloc_size(maxChars, (char*)"maxChars", __func__)) < 0) { return r; }
   if (maxChars > 0) 
   { 
-    if (pppChars == NULL) { idealand_error("pppChars cannot be NULL when maxChars is greater than 0 in %s", (char*)__func__); return -1; }
+    if (pppChars == NULL) { idealand_error("pppChars cannot be NULL when maxChars is greater than 0 in %s", __func__); return -1; }
     *pppChars = (char**)idealand_malloc(IdealandPointerSize * maxChars); if (*pppChars == NULL) { return -1; }
   }
 
@@ -160,32 +160,32 @@ INT64 idealand_string_utf8(char* str, INT64 *pAsciiCount, INT64* pOtherCount, ch
     c = str[i]; start = 0;
     if ((c & 0b10000000) == 0) //第一个bit为0，剩余的均为1*******
     {
-      if(remain!=0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", (char*)__func__, i, remain); return -1; }
+      if(remain!=0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", __func__, i, remain); return -1; }
       AsciiCount++; start = 1;
     }
     else if ((c & 0b01000000) == 0) // 头两个bit为10，剩余的均为11******
     {
-      if(remain<=0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be 10****** as remain = %d", (char*)__func__, i, remain); return -1; }
+      if(remain<=0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be 10****** as remain = %d", __func__, i, remain); return -1; }
       if(--remain==0) OtherCount++;
     }
     else if ((c & 0b00100000) == 0) // 头3个bit为110, 2字节字符，剩余的均为111*****
     {
-      if (remain != 0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", (char*)__func__, i, remain); return -1; }
+      if (remain != 0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", __func__, i, remain); return -1; }
       remain = 1; start = 1;
     }
     else if ((c & 0b00010000) == 0) // 头4个bit为1110, 3字节字符，剩余的均为1111****
     {
-      if (remain != 0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", (char*)__func__, i, remain); return -1; }
+      if (remain != 0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", __func__, i, remain); return -1; }
       remain = 2; start = 1;
     }
     else if ((c & 0b00001000) == 0) // 头5个bit为11110, 4字节字符，剩余的均为11111***
     {
-      if (remain != 0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", (char*)__func__, i, remain); return -1; }
+      if (remain != 0) { idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be a start as remain = %d", __func__, i, remain); return -1; }
       remain = 3; start = 1;
     }
     else // 11111***
     {
-      idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be 11111***", (char*)__func__, i); return -1;
+      idealand_error("invalid utf8 str in %s, the %lldth byte shouldn't be 11111***", __func__, i); return -1;
     }
 
     if (maxChars > 0 && start)
@@ -196,7 +196,7 @@ INT64 idealand_string_utf8(char* str, INT64 *pAsciiCount, INT64* pOtherCount, ch
       }
     }
   }
-  if(remain!=0){ idealand_error("invalid utf8 str in %s, ends with remain = %d", (char*)__func__, remain); return -1; }
+  if(remain!=0){ idealand_error("invalid utf8 str in %s, ends with remain = %d", __func__, remain); return -1; }
   if (pAsciiCount != NULL) *pAsciiCount = AsciiCount; if (pOtherCount != NULL) *pOtherCount = OtherCount;
   return AsciiCount + OtherCount;
 }

@@ -11,7 +11,7 @@ char* idealand_file_exe_dir()
 {
   char* r = idealand_file_exe_path();  if (r == NULL) return NULL;
   INT64 rindex = idealand_string_rindex('\\', r); if (rindex < 0) rindex = idealand_string_rindex('/', r);
-  if (rindex < 0) { idealand_error("could not find dir sep in exe path in %s.", (char*)__func__); return NULL; }
+  if (rindex < 0) { idealand_error("could not find dir sep in exe path in %s.", __func__); return NULL; }
   r[rindex+1] = 0; printf("exe dir = %s\n", r); return r;
 }
 
@@ -20,8 +20,8 @@ char* idealand_file_exe_dir()
 int idealand_file_exist(char* path, int file_dir)
 {
   int r = 0;
-  if ((r = idealand_check_path(path, (char*)"path", (char*)__func__)) < 0) { return r; }
-  if ((r = idealand_check_int(file_dir, (char*)"file_dir", (char*)__func__, 3, 1)) < 0) { return r; }
+  if ((r = idealand_check_path(path, (char*)"path", __func__)) < 0) { return r; }
+  if ((r = idealand_check_int(file_dir, (char*)"file_dir", __func__, 3, 1)) < 0) { return r; }
 
   if (_access(path, 0) != 0) return -1;
   struct stat status; stat(path, &status);
@@ -35,8 +35,8 @@ int idealand_file_exist(char* path, int file_dir)
 INT64 idealand_get_file_info(char* pattern, IdealandFd* pf, int print)
 {
   int r = 0;
-  if ((r = idealand_check_string(pattern, 0, (char*)"pattern", (char*)__func__, IdealandMaxPathLen, 1)) < 0) { return r; }
-  if ((r = idealand_check_pointer(pf, (char*)"pf", (char*)__func__)) < 0) { return r; }
+  if ((r = idealand_check_string(pattern, 0, (char*)"pattern", __func__, IdealandMaxPathLen, 1)) < 0) { return r; }
+  if ((r = idealand_check_pointer(pf, (char*)"pf", __func__)) < 0) { return r; }
 
   intptr_t fHandle; 
   if ((fHandle = _findfirst(pattern, pf)) == -1) { if (print) printf("cannot find file: %s\n", pattern); return -1; } 
@@ -53,9 +53,9 @@ INT64 idealand_get_file_info(char* pattern, IdealandFd* pf, int print)
 INT64 idealand_get_file_info(char* collection, int no, IdealandFd* pf, int print)
 {
   INT64 r = 0;
-  if ((r = idealand_check_filename(collection, (char*)"collection", (char*)__func__)) < 0) { return r; }
-  if ((r = idealand_check_int(no, (char*)"no", (char*)__func__, IdealandDirMaxFilesCount, 0)) < 0) { return r; }
-  if ((r = idealand_check_pointer(pf, (char*)"pf", (char*)__func__)) < 0) { return r; }
+  if ((r = idealand_check_filename(collection, (char*)"collection", __func__)) < 0) { return r; }
+  if ((r = idealand_check_int(no, (char*)"no", __func__, IdealandDirMaxFilesCount, 0)) < 0) { return r; }
+  if ((r = idealand_check_pointer(pf, (char*)"pf", __func__)) < 0) { return r; }
 
   char* search = idealand_string(IdealandMaxPathLen, NULL, (char*)"%s/%04d*", collection, no); if (search == NULL) { return -1; }
   r = idealand_get_file_info(search, pf, print); free(search); return r;
@@ -79,7 +79,7 @@ char * idealand_file_mkdir(char* name, char* parent)
 {
   int r = 0; char* path=NULL;
 
-  if ((r = idealand_check_filename(name, (char*)"name", (char*)__func__)) < 0) { return NULL; }
+  if ((r = idealand_check_filename(name, (char*)"name", __func__)) < 0) { return NULL; }
   char* parent2=NULL; if (parent != NULL && (parent2 = idealand_string_normalize_path(parent, 1)) == NULL) return NULL;
   if (parent2!=NULL && (r = idealand_file_exist(parent2, 2)) < 0) { printf("parent dir(%s) do not exists, cannot creat dir in it.\n", parent2); r = -1; goto free1; }
 
@@ -100,9 +100,9 @@ free1:  if (parent2 != parent && parent2 != NULL) free(parent2);
 
 INT8* idealand_file_send_info(char *name, int no, INT64 size, int* pSendLen)
 {
-  if (idealand_check_file_no(no, (char*)"no", (char*)__func__) < 0) { return NULL; }
-  if (idealand_check_size(size, (char*)"size", (char*)__func__) < 0) { return NULL; }
-  if (idealand_check_pointer(pSendLen, (char*)"pSendLen", (char*)__func__) < 0) { return NULL; }
+  if (idealand_check_file_no(no, (char*)"no", __func__) < 0) { return NULL; }
+  if (idealand_check_size(size, (char*)"size", __func__) < 0) { return NULL; }
+  if (idealand_check_pointer(pSendLen, (char*)"pSendLen", __func__) < 0) { return NULL; }
 
   INT16 nameLen = 1; if(name!=NULL) nameLen+= (INT16)(strlen(name)); *pSendLen = IdealandFiSize + nameLen;
   INT8* r = (INT8*)idealand_malloc(*pSendLen); if (r == NULL) { return r; }
@@ -116,7 +116,7 @@ INT8* idealand_file_send_info(char *name, int no, INT64 size, int* pSendLen)
 
 FILE* idealand_file_open(char* path, char *mode)
 {
-  if (idealand_check_pointer(path, (char*)"path", (char*)__func__) < 0) { return NULL; }
+  if (idealand_check_pointer(path, (char*)"path", __func__) < 0) { return NULL; }
 
   FILE* pf = NULL; 
   if (fopen_s(&pf, path, mode) != 0) idealand_error("could not open file (%s) for binary read.", path);
@@ -126,9 +126,9 @@ FILE* idealand_file_open(char* path, char *mode)
 int idealand_file_read_all(char* path, char *buf, INT64 max, int utf8Bom, int textEnd)
 {
   int r = 0;
-  if (idealand_check_pointer(path, (char*)"path", (char*)__func__) < 0) { return -1; }
-  if (idealand_check_pointer(buf, (char*)"buf", (char*)__func__) < 0) { return -1; }
-  if (idealand_check_size(max, (char*)"max", (char*)__func__) < 0) { return -1; }
+  if (idealand_check_pointer(path, (char*)"path", __func__) < 0) { return -1; }
+  if (idealand_check_pointer(buf, (char*)"buf", __func__) < 0) { return -1; }
+  if (idealand_check_size(max, (char*)"max", __func__) < 0) { return -1; }
   if (utf8Bom) textEnd = 1;
 
   FILE* pf = NULL; 

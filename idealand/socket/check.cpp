@@ -38,17 +38,18 @@ int idealand_socket_check_structs(SOCKET* p)
   }
   else r = -1;  
 
-free1:  free(buf); return r;
+free1:  
+  free(buf); return r;
 }
 
 
 
-int idealand_socket_check_answer(SOCKET* p)
+int idealand_socket_check_structs_answer(SOCKET* p)
 {
   int r = 0;
   if ((r = idealand_socket_check_pointer(p, "p", __func__)) < 0) return r;
 
-  printf("idealand_socket_check_answer ...\n");
+  printf("idealand_socket_check_structs_answer ...\n");
   r = -1; INT64 diff;
   INT8* buf = (INT8*)idealand_malloc(IdealandStructsSize); if (buf == NULL) { return -1; }
   r = idealand_socket_recv(p, buf, IdealandStructsSize); if (r != IdealandStructsSize)
@@ -58,11 +59,12 @@ int idealand_socket_check_answer(SOCKET* p)
   }
   diff = (INT64)memcmp(buf, &IdealandFiCheck, IdealandFiSize); // add other structs compare here
   r = idealand_socket_send(p, &diff, 8);
-  if (!diff && r == 8) { r = 0; printf("idealand_socket_check_answer succeed.\n"); }
+  if (!diff && r == 8) { r = 0; printf("idealand_socket_check_structs_answer succeed.\n"); }
   else if (diff) { r = -1; printf("received struct is not equal to IdealandFiCheck.\n"); }
   else if (r >= 0) r = -1;
 
-free1:  free(buf); return r;
+free1:  
+  free(buf); return r;
 }
 
 

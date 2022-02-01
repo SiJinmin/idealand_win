@@ -27,6 +27,6 @@ int idealand_check_set_runtime()
 
 void* idealand_malloc(INT64 size)
 {
-  if (idealand_check_malloc_size(size, (char*)"size", (char*)__func__) < 0) { return NULL; }
+  if (idealand_check_malloc_size(size, (char*)"size", __func__) < 0) { return NULL; }
   void* r = malloc(size); if (r == NULL) { idealand_error("malloc %lld bytes fail.", size); } return r;
 }
