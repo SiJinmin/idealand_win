@@ -46,8 +46,8 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
   if ((r = idealand_check_size(clientSize, "clientSize", __func__)) < 0) { return r; }
   char* collection = (char*)(buf + IdealandFiSize);
   if ((r = idealand_check_filename(collection, "collection", __func__)) < 0) { return r; }
-  printf("received a request for collection: %s, no: %d, name len=%d\n", collection, no, (int)(nameLen-1));
-  idealand_print_encoding(collection);
+  idealand_log("received a request for collection: %s, no: %d, name len=%d", collection, no, (int)(nameLen-1));
+  // idealand_print_encoding(collection);
   
 
   // 查找文件
@@ -55,15 +55,15 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
   if ((fileSize=idealand_get_file_info(collection, no, &fd)) >= 0 )
   {
     remainSize = fileSize - clientSize;
-    printf("server file size = %I64d, remain %I64d to send\n", fileSize, remainSize);
+    idealand_log("server file size = %I64d, remain %I64d to send", fileSize, remainSize);
   }
 
   // 告知客户端文件是否存在，剩下的字节数和文件名
   INT8* pSendInfo = NULL; int sendLen = 0;
   pSendInfo = idealand_file_send_info(fd.name, no, remainSize, &sendLen);  if (pSendInfo == NULL) { return -1; }
-  printf("tell client the file info: %s no=%d, remain=%d, sent length=%d\n", fd.name, no, (int)remainSize, sendLen);
+  idealand_log("tell client the file info: %s no=%d, remain=%d, sent length=%d", fd.name, no, (int)remainSize, sendLen);
   if ((r = idealand_socket_send(p, pSendInfo, sendLen)) != sendLen) goto free1;
-  printf("tell client the file info succeed: sent length=%d\n", r);
+  idealand_log("tell client the file info succeed: sent length=%d", r);
 
   if (remainSize > 0){ r = idealand_socket_file_read(collection, fd.name, clientSize, fileSize, p, buf); }
 
@@ -75,15 +75,15 @@ free1:
 
 int idealand_socket_file_read(char* collection, char *name, INT64 clientSize, INT64 fileSize,  SOCKET *p, INT8* buf)
 {
-  printf("sending file content to client\n");
+  idealand_log("sending file content to client");
   int r=0; int read=0, total = 0, preCharCount = 0; time_t start, now, timeStep = 5, usedSeconds = 0;
 
-  if ((r = idealand_check_filename(collection, (char*)"collection", __func__)) < 0) { return r; }
-  if ((r = idealand_check_filename(name, (char*)"name", __func__)) < 0) { return r; }
-  if ((r = idealand_check_size(clientSize, (char*)"clientSize", __func__)) < 0) { return r; }
-  if ((r = idealand_check_size(fileSize, (char*)"fileSize", __func__)) < 0) { return r; }
-  if ((r = idealand_check_pointer(p, (char*)"p", __func__)) < 0) return r;
-  if ((r = idealand_check_pointer(buf, (char*)"buf", __func__)) < 0) return r;
+  if ((r = idealand_check_filename(collection, "collection", __func__)) < 0) { return r; }
+  if ((r = idealand_check_filename(name, "name", __func__)) < 0) { return r; }
+  if ((r = idealand_check_size(clientSize, "clientSize", __func__)) < 0) { return r; }
+  if ((r = idealand_check_size(fileSize, "fileSize", __func__)) < 0) { return r; }
+  if ((r = idealand_check_pointer(p, "p", __func__)) < 0) return r;
+  if ((r = idealand_check_pointer(buf, "buf", __func__)) < 0) return r;
 
   // 读取文件内容
   char* path = idealand_string(1024, NULL, (char*)"%s/%s", collection, name); if (path == NULL) return -1;
@@ -106,6 +106,7 @@ int idealand_socket_file_read(char* collection, char *name, INT64 clientSize, IN
   } while (read == IdealandBufferSize);
 
 free1: 
+  printf("\n");
   if(pf!=NULL) fclose(pf);
   if(path!=NULL) free(path);
   return r;

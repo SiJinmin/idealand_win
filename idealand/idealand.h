@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <Windows.h>
 #include <wingdi.h>
+#include <process.h>
 #include "consts.h"
 #include "structs.h"
 #include "context.h"

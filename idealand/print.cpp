@@ -3,7 +3,7 @@
 
 void idealand_print_clear(int preCharCount)
 {
-  if (idealand_check_int(preCharCount, (char*)"preCharCount", __func__, 1000, 0) < 0) { return; }
+  if (idealand_check_int(preCharCount, "preCharCount", __func__, 1000, 0) < 0) { return; }
   while (preCharCount-- > 0) printf("\b \b");
 }
 
@@ -12,11 +12,11 @@ void idealand_print_clear(int preCharCount)
 int idealand_print_transfer_speed(INT64 usedSeconds, INT64 transferedSize, INT64 clientSize, INT64 fileSize, int preCharCount)
 {
   int r = 0;
-  if ((r = idealand_check_seconds(usedSeconds, (char*)"usedSeconds", __func__)) < 0) return r;
-  if ((r = idealand_check_size(transferedSize, (char*)"transferedSize", __func__)) < 0) return r;
-  if ((r = idealand_check_size(clientSize, (char*)"clientSize", __func__)) < 0) return r;
-  if ((r = idealand_check_size(fileSize, (char*)"fileSize", __func__, 1)) < 0) return r;
-  if ((r=idealand_check_int(preCharCount, (char*)"preCharCount", __func__, 1000, 0)) < 0) return r;
+  if ((r = idealand_check_seconds(usedSeconds, "usedSeconds", __func__)) < 0) return r;
+  if ((r = idealand_check_size(transferedSize, "transferedSize", __func__)) < 0) return r;
+  if ((r = idealand_check_size(clientSize, "clientSize", __func__)) < 0) return r;
+  if ((r = idealand_check_size(fileSize, "fileSize", __func__, 1)) < 0) return r;
+  if ((r=idealand_check_int(preCharCount, "preCharCount", __func__, 1000, 0)) < 0) return r;
 
   double percentage = 100.0 * (transferedSize + clientSize) / fileSize;
   INT64 remainSeconds = 0, speed = 0;

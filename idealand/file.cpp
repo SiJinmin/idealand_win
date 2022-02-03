@@ -20,8 +20,8 @@ char* idealand_file_exe_dir()
 int idealand_file_exist(char* path, int file_dir)
 {
   int r = 0;
-  if ((r = idealand_check_path(path, (char*)"path", __func__)) < 0) { return r; }
-  if ((r = idealand_check_int(file_dir, (char*)"file_dir", __func__, 3, 1)) < 0) { return r; }
+  if ((r = idealand_check_path(path, "path", __func__)) < 0) { return r; }
+  if ((r = idealand_check_int(file_dir, "file_dir", __func__, 3, 1)) < 0) { return r; }
 
   if (_access(path, 0) != 0) return -1;
   struct stat status; stat(path, &status);

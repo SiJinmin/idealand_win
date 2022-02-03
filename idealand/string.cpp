@@ -3,8 +3,8 @@
 
 char* idealand_string(int max, int *pcount, char* format, ...)
 {
-  if (idealand_check_malloc_size(max, (char*)"max", __func__) < 0) { return NULL; }
-  if (idealand_check_pointer((void *)format, (char*)"format", __func__) < 0) return NULL;
+  if (idealand_check_malloc_size(max, "max", __func__) < 0) { return NULL; }
+  if (idealand_check_pointer(format, "format", __func__) < 0) return NULL;
 
   char* buf = (char*)idealand_malloc(max); if (buf == NULL) { return NULL; }
   va_list args; va_start(args, format); int count = vsprintf_s(buf, max - 1, format, args);  va_end(args);
@@ -29,7 +29,7 @@ void idealand_string_replace(char from, char to, char* str)
 INT64 idealand_string_remove_repeat(char repeat, char* str)
 {
   int r = 0;
-  if ((r = idealand_check_pointer(str, (char*)"str", __func__)) < 0) return r;
+  if ((r = idealand_check_pointer(str, "str", __func__)) < 0) return r;
 
   INT64 len = strlen(str), end = len - 1, repeatCount = 0, repeatCount1, i = len, start; char c;
   while (--i >= 0)
@@ -53,7 +53,7 @@ INT64 idealand_string_remove_repeat(char repeat, char* str)
 char *idealand_string_normalize_path(char* path, int dirEnd)
 {
   int r = 0;
-  if ((r = idealand_check_path(path, (char*)"path", __func__)) < 0) return NULL;
+  if ((r = idealand_check_path(path, "path", __func__)) < 0) return NULL;
 
   idealand_string_replace(IdealandPathSep2, IdealandPathSep, path);
   idealand_string_remove_repeat(IdealandPathSep, path);
@@ -71,7 +71,7 @@ char *idealand_string_normalize_path(char* path, int dirEnd)
 
 char* idealand_string_time_length(INT64 seconds, int full, int* pcount)
 {
-  if (idealand_check_seconds(seconds, (char*)"seconds", __func__) < 0) { return NULL; }
+  if (idealand_check_seconds(seconds, "seconds", __func__) < 0) { return NULL; }
 
   INT64 bufLen = 1024, bufLen1 = bufLen - 1; char* r = (char*)idealand_malloc(bufLen); if (r == NULL) { return NULL; }
   INT64 parts[4]; char* partNames[] = {(char*)"seconds",(char*)"minutes",(char*)"hours",(char*)"days"};

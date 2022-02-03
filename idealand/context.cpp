@@ -2,7 +2,10 @@
 {
   va_list args; printf("\nidealand error: "); va_start(args, format); vprintf(format, args); va_end(args); printf("\n");
 }
-
+void idealand_log(const char* format, ...)
+{
+  va_list args; printf("[%lu]", GetCurrentThreadId()); va_start(args, format); vprintf(format, args); va_end(args); printf("\n");
+}
 
 
 int idealand_check_set_runtime()
@@ -27,6 +30,6 @@ int idealand_check_set_runtime()
 
 void* idealand_malloc(INT64 size)
 {
-  if (idealand_check_malloc_size(size, (char*)"size", __func__) < 0) { return NULL; }
+  if (idealand_check_malloc_size(size, "size", __func__) < 0) { return NULL; }
   void* r = malloc(size); if (r == NULL) { idealand_error("malloc %lld bytes fail.", size); } return r;
 }
