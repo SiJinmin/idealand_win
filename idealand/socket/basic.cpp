@@ -9,12 +9,12 @@ void idealand_socket_error(const char* format, ...)
 
 
 
-int idealand_socket_run(IdealandWork awork, void** args)
+int idealand_socket_run(IdealandWork awork, IdealandMainArgs* pMargs)
 {
   int r = 0;
   WSADATA wsaData;  // initiate use of WS2_32.dll, makes a request for version 2.2 of Winsock on the system
   if (r = WSAStartup(MAKEWORD(2, 2), &wsaData)) { idealand_error("WSAStartup failed: %d\n", r); return -1; }
-  if(awork!=NULL) r = awork(args);
+  if(awork!=NULL) r = awork(pMargs);
   WSACleanup(); 
   return r;
 }

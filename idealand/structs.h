@@ -20,3 +20,7 @@ int IdealandKVSize = sizeof(IdealandKV);
 
 /* if a struct is transfered and restored by socket, add it here. */
 int IdealandStructsSize = IdealandFiSize;
+
+
+
+typedef struct idealand_main_args { char mode; char buf_conf[IdealandConfMaxSize]; char* server; char* collection; int start; int end; int conf_ok; } IdealandMainArgs;

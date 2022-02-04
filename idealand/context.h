@@ -1,10 +1,10 @@
 ﻿// function typedefs
-typedef int (*IdealandWork)(void** args);
+typedef int (*IdealandWork)(IdealandMainArgs* pMargs);
 
 
 
 // idealand.cpp
-int idealand_the_work(void** args);
+int idealand_the_work(IdealandMainArgs* pMargs);
 
 
 /*

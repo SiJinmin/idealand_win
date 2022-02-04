@@ -51,17 +51,17 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
   
 
   // 查找文件
-  IdealandFd fd; INT64 fileSize = 0, remainSize = 0;
+  IdealandFd fd; char* name = NULL; INT64 fileSize = 0, remainSize = 0;
   if ((fileSize=idealand_get_file_info(collection, no, &fd)) >= 0 )
   {
-    remainSize = fileSize - clientSize;
+    remainSize = fileSize - clientSize; name = fd.name;
     idealand_log("server file size = %I64d, remain %I64d to send", fileSize, remainSize);
   }
 
   // 告知客户端文件是否存在，剩下的字节数和文件名
   INT8* pSendInfo = NULL; int sendLen = 0;
-  pSendInfo = idealand_file_send_info(fd.name, no, remainSize, &sendLen);  if (pSendInfo == NULL) { return -1; }
-  idealand_log("tell client the file info: %s no=%d, remain=%d, sent length=%d", fd.name, no, (int)remainSize, sendLen);
+  pSendInfo = idealand_file_send_info(name, no, remainSize, &sendLen);  if (pSendInfo == NULL) { return -1; }
+  idealand_log("tell client the file info: %s no=%d, remain=%d, sent length=%d", name==NULL?(char*)"file not exists":name, no, (int)remainSize, sendLen);
   if ((r = idealand_socket_send(p, pSendInfo, sendLen)) != sendLen) goto free1;
   idealand_log("tell client the file info succeed: sent length=%d", r);
 
@@ -131,12 +131,12 @@ int idealand_socket_file_receive(char* collection, int no, INT64 clientSize, SOC
   IdealandFi* pfi = (IdealandFi*)buf; INT16 nameLen = pfi->name_len; 
   if (r < IdealandFiSize + nameLen) 
   { 
-    idealand_error("received data size(%d) is less than IdealandFi(%d) and file name length(%d)."
-      , r, IdealandFiSize, nameLen );
+    idealand_error("received data size(%d) is less than IdealandFi(%d) and file name length(%d).", r, IdealandFiSize, nameLen );
     return -1; 
   }
   else read = r - (IdealandFiSize + nameLen);
   char* name = (char*)(buf + IdealandFiSize); if((INT16)strlen(name)!=nameLen-1) { idealand_error("nameLen do not match name length."); return -1; }
+  printf("received file name length = %d\n", (int)nameLen);
   if (nameLen <=1) { printf("file do not exists on server.\n"); return 0; }
   if((int)pfi->no!=no) { idealand_error("received no do not match local no."); return -1; }
   INT64 remainSize = pfi->size; if ((r = idealand_check_size(remainSize, (char*)"remainSize", __func__)) < 0) { return r; }
