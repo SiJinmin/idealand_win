@@ -24,3 +24,11 @@ int IdealandStructsSize = IdealandFiSize;
 
 
 typedef struct idealand_main_args { char mode; char buf_conf[IdealandConfMaxSize]; char* server; char* collection; int start; int end; int conf_ok; } IdealandMainArgs;
+
+
+
+typedef struct idealand_thread_info { INT32 id; char status[10]; FILE* pLog; char * log_path; } IdealandThreadInfo;
+IdealandThreadInfo IdealandThreads[IdealandMaxThreads];
+
+
+

@@ -11,11 +11,11 @@ int idealand_socket_file_request(SOCKET* p, char* collection, int no, INT8** ppS
   if ((r = idealand_check_pointer((void *)ppSendInfo, (char*)"ppSendInfo", __func__)) < 0) return r;
   if ((r = idealand_check_pointer((void*)pSendLen, (char*)"pSendLen", __func__)) < 0) return r;
 
-  printf("requesting file from server, collection = %s, no = %d \n", collection, no);
+  idealand_log("requesting file from server, collection = %s, no = %d \n", collection, no);
 
   // 检查文件是否存在，获取文件信息
   IdealandFd fd; INT64 clientSize = idealand_get_file_info(collection, no, &fd);
-  if (clientSize >= 0) { printf("existing %s/%s size = %I64d\n", collection, fd.name, clientSize); } else clientSize = 0;
+  if (clientSize >= 0) { idealand_log("existing %s/%s size = %I64d\n", collection, fd.name, clientSize); } else clientSize = 0;
 
   // 发送请求
   if (*ppSendInfo == NULL)
@@ -33,12 +33,12 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
   if ((r = idealand_check_pointer(buf, (char*)"buf", __func__)) < 0) return r;
 
   // 获取用户请求的file info
-  r = idealand_socket_recv(p, buf); if (r < 0) { idealand_socket_error((char*)"receive file request from client socket failed."); return r; }
-  if (r < IdealandFiSize + 1) { idealand_error("received data size is not enough for IdealandFi and name restore."); return -1; }
+  r = idealand_socket_recv(p, buf); if (r < 0) { idealand_socket_error(); idealand_log((char*)"receive file request from client socket failed."); return r; }
+  if (r < IdealandFiSize + 1) { idealand_log("received data size is not enough for IdealandFi and name restore."); return -1; }
   IdealandFi* pfi = (IdealandFi*)buf; INT16 nameLen = pfi->name_len; int no = (int)pfi->no; INT64 clientSize = pfi->size;
   if (r != IdealandFiSize + nameLen) 
   { 
-    idealand_error("received data size(%d) and content(size=%d, no=%d) do not match IdealandFi(%d) and name length(%d)."
+    idealand_log("received data size(%d) and content(size=%d, no=%d) do not match IdealandFi(%d) and name length(%d)."
       , r, (int)clientSize, (int)no, IdealandFiSize , (int)nameLen);
     return -1; 
   }
@@ -126,44 +126,44 @@ int idealand_socket_file_receive(char* collection, int no, INT64 clientSize, SOC
 
 
   // 接收文件是否存在，剩下的字节数和文件名  
-  r = idealand_socket_recv(p, buf); if (r < 0) { idealand_socket_error("receive file name and remain size from server failed."); return r; }
-  if (r < IdealandFiSize + 1) { idealand_error("received data size is not enough for IdealandFi and name restore."); return -1; }
+  r = idealand_socket_recv(p, buf); if (r < 0) { idealand_log("receive file name and remain size from server failed."); return r; }
+  if (r < IdealandFiSize + 1) { idealand_log("received data size is not enough for IdealandFi and name restore."); return -1; }
   IdealandFi* pfi = (IdealandFi*)buf; INT16 nameLen = pfi->name_len; 
   if (r < IdealandFiSize + nameLen) 
   { 
-    idealand_error("received data size(%d) is less than IdealandFi(%d) and file name length(%d).", r, IdealandFiSize, nameLen );
+    idealand_log("received data size(%d) is less than IdealandFi(%d) and file name length(%d).", r, IdealandFiSize, nameLen );
     return -1; 
   }
   else read = r - (IdealandFiSize + nameLen);
-  char* name = (char*)(buf + IdealandFiSize); if((INT16)strlen(name)!=nameLen-1) { idealand_error("nameLen do not match name length."); return -1; }
-  printf("received file name length = %d\n", (int)nameLen);
-  if (nameLen <=1) { printf("file do not exists on server.\n"); return 0; }
-  if((int)pfi->no!=no) { idealand_error("received no do not match local no."); return -1; }
+  char* name = (char*)(buf + IdealandFiSize); if((INT16)strlen(name)!=nameLen-1) { idealand_log("nameLen do not match name length."); return -1; }
+  idealand_log("received file name length = %d\n", (int)nameLen);
+  if (nameLen <=1) { idealand_log("file do not exists on server.\n"); return 0; }
+  if((int)pfi->no!=no) { idealand_log("received no do not match local no."); return -1; }
   INT64 remainSize = pfi->size; if ((r = idealand_check_size(remainSize, (char*)"remainSize", __func__)) < 0) { return r; }
 
   // 文件存在，创建并打开文件
   char* path = NULL;
   if (idealand_file_exist(collection, 2) < 0) { path = idealand_file_mkdir(collection);  if (path == NULL) return -1; else { free(path); path = NULL; } }
   path = idealand_string(1024, NULL, (char*)"%s/%s", collection, name); if (path == NULL) return -1;
-  if (idealand_file_exist(path, 2) >= 0) { idealand_error("cannot create file as the same name dir exists: %s", path); r = -1; goto free1; }
-  if ((pf = idealand_file_open(path, (char*)"ab")) == NULL) { r = -1; goto free1; }
+  if (idealand_file_exist(path, 2) >= 0) { idealand_log("cannot create file as the same name dir exists: %s", path); r = -1; goto free1; }
+  if ((pf = idealand_file_open(path, "ab")) == NULL) { r = -1; goto free1; }
 
   // 已下载完毕的情况
-  if (remainSize <= 0) { printf("download already completed\n"); r = 0; goto free1; }
+  if (remainSize <= 0) { idealand_log("download already completed\n"); r = 0; goto free1; }
 
   // 开始下载
   fileSize = remainSize + clientSize;
-  printf("receiving file = %s, remain = %I64d/%I64d (%d%%) to download\n", path, remainSize, fileSize, (int)(100 * remainSize / fileSize));
+  idealand_log("receiving file = %s, remain = %I64d/%I64d (%d%%) to download\n", path, remainSize, fileSize, (int)(100 * remainSize / fileSize));
   time(&start);
   do 
   {
     if (total == 0 && read > 0) { buf2 = buf + (IdealandFiSize + nameLen); } else { read = idealand_socket_recv(p, buf); buf2 = buf; }
-    if (read > 0) { total += read; fwrite(buf2, 1, read, pf); } else if (read<0) { r = read; printf("socket receive failed.\n");  }
+    if (read > 0) { total += read; fwrite(buf2, 1, read, pf); } else if (read<0) { r = read; idealand_log("socket receive failed.\n");  }
     time(&now); if (usedSeconds == 0 || now - start > usedSeconds + timeStep || total + clientSize >= fileSize || r<0 || read<=0)
     {
       usedSeconds = now - start;
       preCharCount = idealand_print_transfer_speed(usedSeconds, total, clientSize, fileSize, preCharCount); if (preCharCount == -1) { r = -1; goto free1; }
-      if (total + clientSize > fileSize) { idealand_error("file download size greater than remain size.\n"); r = -1; goto free1; }
+      if (total + clientSize > fileSize) { idealand_log("file download size greater than remain size.\n"); r = -1; goto free1; }
     }    
     if (total + clientSize == fileSize || r<0) { goto free1; }
   } while (read > 0);

@@ -37,8 +37,10 @@
 #include "check.h"
 #include "string.h"
 #include "text.h"
+#include "time.h"
 #include "print.h"
 #include "file.h"
+#include "thread.h"
 
 
 

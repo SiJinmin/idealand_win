@@ -14,7 +14,7 @@ IdealandFd fd; char name[IdealandMaxNameLen] = {0}; idealand_get_file_info("1*1"
 /* CHCP 65001 should be place at beginning as it may clears screen */
 inline void idealand_set_encoding() 
 { 
-  system("CHCP 65001"); setlocale(LC_ALL, ".UTF8"); printf("set encoding to utf8\n");
+  system("CHCP 65001"); setlocale(LC_ALL, ".UTF8"); printf("set encoding to utf8\n"); // idealand_log hasn't been included
 }
 
 
@@ -39,4 +39,5 @@ inline void log(source_loc source, level::level_enum lvl, format_string_t<Args..
 
 【管理员】杭州Benly(8727327)  11:55:34
 #define printError(fmt, ...) printf(strcat("logo: ", fmt), ##__VA_ARGS__)  */
-void idealand_error(const char* format, ...);
+/* return the char count not including ending \n, or negative value for errors */
+int idealand_log(const char* format, ...);

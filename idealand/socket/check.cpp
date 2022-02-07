@@ -5,7 +5,7 @@ int idealand_socket_check_pointer(SOCKET* p, const char* name, const char* funct
 {
   if (p == NULL || *p == INVALID_SOCKET)
   {
-    if (allowInvalid) return 0; else { idealand_error((char*)"socket %s cannot be NULL or INVALID_SOCKET in %s.", name, functionName); return -1; }
+    if (allowInvalid) return 0; else { idealand_log((char*)"socket %s cannot be NULL or INVALID_SOCKET in %s.", name, functionName); return -1; }
   }
   else
   {
@@ -20,7 +20,7 @@ int idealand_socket_check_structs(SOCKET* p)
   int r = 0;
   if ((r = idealand_socket_check_pointer(p, "p", __func__)) < 0) return r;
 
-  printf("idealand_socket_check_structs ...\n");
+  idealand_log("idealand_socket_check_structs ...\n");
   r = -1;
   INT8* buf = (INT8*)idealand_malloc(IdealandStructsSize); if (buf == NULL) { return -1; }
   INT64* buf2 = (INT64*)buf;
@@ -29,12 +29,12 @@ int idealand_socket_check_structs(SOCKET* p)
   r = idealand_socket_recv(p, buf, 16); if (r < 0) goto free1; 
   if (r == 8)
   {
-    if (*buf2 == 0) { r = 0; printf("idealand_socket_check_structs succeed.\n"); }
-    else { r = -1; printf("sent struct is not equal to remote IdealandFiCheck.\n"); }
+    if (*buf2 == 0) { r = 0; idealand_log("idealand_socket_check_structs succeed.\n"); }
+    else { r = -1; idealand_log("sent struct is not equal to remote IdealandFiCheck.\n"); }
   }
   else if (r == 16)
   {
-    r = -1; printf("sent structs size %I64d is not equal to server size %I64d.\n", *buf2, *(buf2 + 1));
+    r = -1; idealand_log("sent structs size %I64d is not equal to server size %I64d.\n", *buf2, *(buf2 + 1));
   }
   else r = -1;  
 

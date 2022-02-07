@@ -12,12 +12,11 @@ int idealand_serve_client(SOCKET* pclient, INT8* buf)
 
 unsigned int __stdcall idealand_serve_client_thread_func(void* args)
 {
-  printf("\n");
-  idealand_log("thread started");
+  idealand_thread_start();
   INT8 buf[IdealandBufferSize];  SOCKET* pclient = (SOCKET*)args;
   idealand_serve_client(pclient, buf);
   if (pclient !=NULL && *pclient != INVALID_SOCKET) closesocket(*pclient);
-  idealand_log("thread ending\n");
+  idealand_thread_end();
   return 0;
 }
 
@@ -30,13 +29,12 @@ int idealand_start_server()
   SOCKET listen = INVALID_SOCKET, * plisten = &listen;
   struct addrinfo* pAddr = NULL; int acceptCount = 0;
 
-
-  printf("\ngetting local listen address...\n");
+  idealand_log("\ngetting local listen address...\n");
   if ((r = idealand_socket_address_get(NULL, IdealandListenPort, AF_INET, AI_PASSIVE, &pAddr)) < 0) goto free1;
   if ((r = idealand_socket_create_listen(pAddr, plisten)) < 0) goto free1;
   while (++acceptCount)
   {
-    printf("\n\n%d. waiting for client connect...\n", acceptCount);
+    idealand_log("\n\n%d. waiting for client connect...\n", acceptCount);
     SOCKET* pclient = (SOCKET*)idealand_malloc(sizeof(SOCKET)); if (pclient == NULL) { r = -1; goto end; } *pclient = INVALID_SOCKET;
     if ((r = idealand_socket_create_accept(plisten, pclient)) < 0) goto end;
     _beginthreadex(NULL, 0, idealand_serve_client_thread_func, pclient, 0, NULL); 

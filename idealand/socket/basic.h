@@ -1,4 +1,4 @@
-﻿void idealand_socket_error(const char* format, ...);
+﻿void idealand_socket_error();
 /* init winsock2 and release it after awork done. */
 int idealand_socket_run(IdealandWork awork, void** args);
 /* optname can be 1. SO_SNDTIMEO,  2. SO_RCVTIMEO

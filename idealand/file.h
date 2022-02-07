@@ -25,9 +25,9 @@ int idealand_file_change_work_dir(char * path);
 
 
 
-char* idealand_file_create(char* name, char* parent);
 /* caller should free(r) if not NULL*/
 char* idealand_file_mkdir(char* name, char* parent=NULL);
+int idealand_file_create(char* path, int allow_exists=1, int utf8_head=0, FILE** ppf=NULL, const char* mode="rb");
 
 
 
@@ -41,7 +41,7 @@ INT8* idealand_file_send_info(char* name, int no, INT64 size, int* pSendLen);
 
 /* open file for binary read, return NULL for error. 
    caller should fclose(r) if not NULL */
-FILE* idealand_file_open(char* path, char *mode= (char*)"rb");
+FILE* idealand_file_open(char* path, const char *mode= "rb");
 
 /* caller should provide char buf[max]
    returns the read char count, or negative value for errors. */

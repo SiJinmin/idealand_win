@@ -1,7 +1,7 @@
 ﻿/* caller should free(r) if not NULL; 
    pcount return the char count if pcount is not NULL; 
    the max strlen(r) is max-1 as the last char must be 0;  */
-char* idealand_string(int max, int* pcount, char* format, ...);
+char* idealand_string(int max, int* pcount, const char* format, ...);
 void idealand_string_replace(char from, char to, char* str);
 /* caller should free(r) if r!=path and not NULL. */
 char* idealand_string_normalize_path(char* path, int dirEnd);
