@@ -61,7 +61,7 @@ int idealand_the_work(IdealandMainArgs* pMargs)
 int main(int argc, char** argv)
 {
   idealand_set_encoding();
-
+  // getchar();
   // 变量声明和初始化
   int r = 0; 
   
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 
   if ((r=idealand_check_set_runtime())<0) goto free1;
 
-  idealand_threads_init(); idealand_thread_start();
+  idealand_threads_init(); idealand_thread_start(0); idealand_thread_start();
 
   if(idealand_get_conf_content(&margs)>=0) margs.conf_ok = 1;
 
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
   
 free1:
-  idealand_thread_end();
+  idealand_thread_end(); idealand_thread_end(0);
   if(IdealandConfPath != NULL) free(IdealandConfPath);
   if(IdealandDataPath != NULL) free(IdealandDataPath);
   if (IdealandLogsPath != NULL) free(IdealandLogsPath);

@@ -29,6 +29,7 @@ typedef struct idealand_main_args { char mode; char buf_conf[IdealandConfMaxSize
 
 typedef struct idealand_thread_info { INT32 id; char status[10]; FILE* pLog; char * log_path; } IdealandThreadInfo;
 IdealandThreadInfo IdealandThreads[IdealandMaxThreads];
+IdealandThreadInfo IdealandCombinedThread;
 
 
 

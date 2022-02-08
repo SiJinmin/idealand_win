@@ -6,16 +6,21 @@ int idealand_log(const char* format, ...)
   if (format == NULL) return -1;
   char log[IdealandTextSize]; INT32 threadId = (INT32)GetCurrentThreadId();
   int i = -1;  while (format[++i] == '\n') { log[i] = '\n'; } 
-  int count1 = sprintf_s(log + i, IdealandTextSize - i - 2, "[%lu] ", threadId) + i;
+  char* now = idealand_time_text('m'); if (now == NULL) return -1;
+  int count1 = sprintf_s(log + i, IdealandTextSize - i - 2, "[%lu %s] ", threadId, now) + i;
   va_list args;  va_start(args, format); int count2 = vsprintf_s(log + count1, IdealandTextSize - count1 - 2, format+i, args); va_end(args);
   if (count2 <= 0) { printf("idealand_log make log text failed\n"); return -1; }
   int count3 = (count1 + count2); if(count3+2> IdealandTextSize) { printf("idealand_log text length overfow\n"); return -1; }
-  if (log[count3 - 1] != '\n') log[count3] = '\n'; else count3--; log[count3 + 1] = 0;
+  if (log[count3 - 1] != '\n') log[count3] = '\n'; else count3--; 
+  int len = count3 + 1; log[len] = 0;
   printf("%s", log);
 
-  IdealandThreadInfo* p = idealand_thread_by_id(threadId, 0); 
-  if (p != NULL && p->pLog != NULL) { fwrite(log, 1, i, p->pLog); fwrite(log+ count1, 1, count3 + 1 - count1, p->pLog); fflush(p->pLog); }
-  return count3;
+  IdealandThreadInfo* p = idealand_thread_by_id(threadId, 0);
+  if (IdealandCombinedThread.pLog != NULL)
+  { fwrite(log, 1, len, IdealandCombinedThread.pLog); fflush(IdealandCombinedThread.pLog); }
+  if (p != NULL && p->pLog != NULL) 
+  { int back = strlen(now) + 2; fwrite(log, 1, i + 1, p->pLog); fwrite(log + count1 - back, 1, len - (count1 - back), p->pLog); fflush(p->pLog); }
+  return len; // exclude end \n
 }
 
 

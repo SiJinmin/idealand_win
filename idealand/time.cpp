@@ -37,4 +37,27 @@ char * idealand_time_yyyyMMddHHmmss_text()
   return p2;
 }
 
+char* idealand_time_text(char mode)
+{
+  SYSTEMTIME currentTime;  GetSystemTime(&currentTime);
+  int year = currentTime.wYear;
+  int month = currentTime.wMonth;
+  int day = currentTime.wDay;
+  int hour = currentTime.wHour;
+  int minute = currentTime.wMinute;
+  int second = currentTime.wSecond;
+  int millisecond = currentTime.wMilliseconds;
+
+  char* buf = (char*)idealand_malloc(50); if (buf == NULL) return NULL; int count = -1;
+  
+  if(mode=='m')
+    count=sprintf_s(buf, 49, "%02d:%02d.%03d", minute, second, millisecond);
+  else if (mode == 'd')
+    count = sprintf_s(buf, 49, "%04d-%02d-%02d", year, month, day);
+  else
+    count = sprintf_s(buf, 49, "%04d-%02d-%02d %02d:%02d:%02d.%03d", year, month, day, hour, minute, second, millisecond);
+
+  if (count >= 0 && count < 49) { buf[count] = 0; return buf; }  else return NULL;
+}
+
 
