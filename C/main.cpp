@@ -78,9 +78,5 @@ int main(int argc, char** argv)
 
   
 free1:
-  idealand_thread_end(); idealand_thread_end(0);
-  if(IdealandConfPath != NULL) free(IdealandConfPath);
-  if(IdealandDataPath != NULL) free(IdealandDataPath);
-  if (IdealandLogsPath != NULL) free(IdealandLogsPath);
-  return r;
+  return idealand_exit(r);
 }

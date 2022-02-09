@@ -24,8 +24,9 @@
 #include <ctype.h>
 #include <time.h>
 #include <locale.h>
-#include <TCHAR.h>
+#include <tchar.h>
 #include <io.h>
+#include <signal.h>
 #include <sys/types.h> 
 #include <sys/stat.h>
 #include <Windows.h>

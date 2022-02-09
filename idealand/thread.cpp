@@ -41,7 +41,7 @@ void idealand_thread_start(INT32 id)
   {
     char* path = idealand_thread_log_path(id); if (path == NULL) return; p->log_path = path;
     idealand_file_create(path, 1, 1, &p->pLog, "ab");
-    char* start = idealand_time_text('f'); if (start != NULL) { idealand_log("\n\nthread %I32d start time: %s", id, start); free(start); }
+    char* start = idealand_time_text('f'); if (start != NULL) { idealand_log("\n\nthread %I32d start time: %s\n\n", id, start); free(start); }
   }
 }
 
@@ -51,7 +51,7 @@ void idealand_thread_end(INT32 id)
 {
   if (id < 0) id = (INT32)GetCurrentThreadId(); IdealandThreadInfo* p = idealand_thread_by_id(id); 
   if (p == NULL || p->pLog == NULL || p->log_path==NULL) return;
-  char* end = idealand_time_text('f'); if (end != NULL) { idealand_log("\n\nend time: %s", end); free(end); }
+  char* end = idealand_time_text('f'); if (end != NULL) { idealand_log("\n\nthread %I32d end time: %s\n\n", id, end); free(end); }
   fclose(p->pLog);
   char* path_end = idealand_thread_log_path(id, 1); if (path_end == NULL) return;
   rename(p->log_path, path_end); 

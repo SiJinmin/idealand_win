@@ -1,5 +1,26 @@
 ﻿
 
+int idealand_exit(int r)
+{
+  for (int i = 0; i < IdealandMaxThreads; i++) { int id = (IdealandThreads + i)->id; if (id > 0) idealand_thread_end(id); }
+  idealand_thread_end(0);
+  if (IdealandConfPath != NULL) free(IdealandConfPath);
+  if (IdealandDataPath != NULL) free(IdealandDataPath);
+  if (IdealandLogsPath != NULL) free(IdealandLogsPath);
+  exit(r >= 0 ? 0 : -1); return r;
+}
+
+
+void idealand_signal_handler(int signal)
+{
+  idealand_log("\n\nsignal=%d", signal);
+  if (signal == SIGINT || signal == SIGABRT) // ctrl+c   abort();
+  {
+    idealand_exit(0);
+  }
+}
+
+
 
 int idealand_log(const char* format, ...)
 {
@@ -20,14 +41,46 @@ int idealand_log(const char* format, ...)
   { fwrite(log, 1, len, IdealandCombinedThread.pLog); fflush(IdealandCombinedThread.pLog); }
   if (p != NULL && p->pLog != NULL) 
   { int back = strlen(now) + 2; fwrite(log, 1, i + 1, p->pLog); fwrite(log + count1 - back, 1, len - (count1 - back), p->pLog); fflush(p->pLog); }
-  return len; // exclude end \n
+  return len; 
 }
 
 
 
 int idealand_check_set_runtime()
 {
+  signal(SIGINT, idealand_signal_handler);
+
   idealand_log("\nidealand_check_set_runtime() ...\n");
+
+  /*idealand_log("os:");
+#ifdef _WIN64  
+  idealand_log("  _WIN64, version = %x", (int)WINVER);
+#elif _WIN32  
+  idealand_log("  _WIN32, version = %x", (int)WINVER);
+#elif __linux
+  idealand_log("  __linux");
+#else
+  idealand_log("  unknown os");
+#endif
+
+  idealand_log("app type:");
+#ifdef _WINDOWS
+  idealand_log("  _WINDOWS graphical UI");
+#elif _CONSOLE 
+  idealand_log("_CONSOLE console");
+#else
+  idealand_log("unknown app type");
+#endif*/
+
+  idealand_log("compiler:");
+#ifdef _MSC_VER
+  idealand_log("  microsoft visual studio (_MSC_VER = %d)", _MSC_VER);
+#elif __GNUC__
+  idealand_log("  gcc (__GNUC__ = %d)", __GNUC__);
+#else
+  idealand_log("unknown compiler");
+#endif
+
 
   // 检查大小端
   UINT16 a = 0x1234; UINT8* p1 = (UINT8*)&a; UINT8* p2 = p1 + 1;

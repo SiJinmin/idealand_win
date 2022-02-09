@@ -29,6 +29,7 @@ int idealand_print_transfer_speed(INT64 usedSeconds, INT64 transferedSize, INT64
   {
     idealand_print_clear(preCharCount);
     r = printf("%s(%.1f%%), %s/%s, %s/sec", totalText, percentage, usedTime, remainTime, speedText);
+    if(percentage==100){ idealand_log("file download completed: total = %s, used time = %s, speed = %s/sec", totalText, usedTime, speedText);  }
   }
   if (totalText != NULL)free(totalText); if (usedTime != NULL)free(usedTime); if (remainTime != NULL)free(remainTime); if (speedText != NULL)free(speedText);
   return r;

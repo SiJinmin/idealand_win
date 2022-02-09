@@ -2,7 +2,6 @@
 typedef int (*IdealandWork)(IdealandMainArgs* pMargs);
 
 
-
 // idealand.cpp
 int idealand_the_work(IdealandMainArgs* pMargs);
 
