@@ -14,8 +14,8 @@ int idealand_socket_file_request(SOCKET* p, char* collection, int no, INT8** ppS
   idealand_log("requesting file from server, collection = %s, no = %d \n", collection, no);
 
   // 检查文件是否存在，获取文件信息
-  IdealandFd fd; INT64 clientSize = idealand_get_file_info(collection, no, &fd);
-  if (clientSize >= 0) { idealand_log("existing %s/%s size = %I64d\n", collection, fd.name, clientSize); } else clientSize = 0;
+  IdealandFileInfo fd; INT64 clientSize = idealand_get_file_info(collection, no, &fd);
+  if (clientSize >= 0) { idealand_log("existing %s/%s size = %ld\n", collection, fd.name, clientSize); } else clientSize = 0;
 
   // 发送请求
   if (*ppSendInfo == NULL)
@@ -51,11 +51,11 @@ int idealand_socket_file_send(SOCKET* p, INT8 *buf)
   
 
   // 查找文件
-  IdealandFd fd; char* name = NULL; INT64 fileSize = 0, remainSize = 0;
+  IdealandFileInfo fd; char* name = NULL; INT64 fileSize = 0, remainSize = 0;
   if ((fileSize=idealand_get_file_info(collection, no, &fd)) >= 0 )
   {
     remainSize = fileSize - clientSize; name = fd.name;
-    idealand_log("server file size = %I64d, remain %I64d to send", fileSize, remainSize);
+    idealand_log("server file size = %ld, remain %ld to send", fileSize, remainSize);
   }
 
   // 告知客户端文件是否存在，剩下的字节数和文件名
@@ -153,7 +153,7 @@ int idealand_socket_file_receive(char* collection, int no, INT64 clientSize, SOC
 
   // 开始下载
   fileSize = remainSize + clientSize;
-  idealand_log("receiving file = %s, remain = %I64d/%I64d (%d%%) to download\n", path, remainSize, fileSize, (int)(100 * remainSize / fileSize));
+  idealand_log("receiving file = %s, remain = %ld/%ld (%d%%) to download\n", path, remainSize, fileSize, (int)(100 * remainSize / fileSize));
   time(&start);
   do 
   {

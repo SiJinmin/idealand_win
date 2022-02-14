@@ -3,10 +3,20 @@
 
 char* idealand_file_exe_path()
 {
-  char* r = NULL; errno_t err = _get_pgmptr(&r); 
-  if (err != 0 || r == NULL) { r = NULL; idealand_log("could not get exe file path.\n"); } else idealand_log("exe file path = %s\n", r);
-  return r;
+  char *r=NULL; int got=0;
+  #ifdef _MSC_VER
+    got=(_get_pgmptr(&r)==0); 
+  #elif __GNUC__
+    r=(char *)idealand_malloc(IdealandMaxPathLen); if(r==NULL) return NULL;
+    got=readlink("/proc/self/exe", r, IdealandMaxPathLen-1);
+    if(got>0) r[got]=0; else got=0;
+  #endif
+  if(got) {idealand_log("exe file path = %s\n", r); return r;} 
+  else {idealand_log("cannot get exe path"); return NULL;}
 }
+
+
+
 char* idealand_file_exe_dir()
 {
   char* r = idealand_file_exe_path();  if (r == NULL) return NULL;
@@ -17,49 +27,65 @@ char* idealand_file_exe_dir()
 
 
 
+
 int idealand_file_exist(char* path, int file_dir)
 {
   int r = 0;
   if ((r = idealand_check_path(path, "path", __func__)) < 0) { return r; }
   if ((r = idealand_check_int(file_dir, "file_dir", __func__, 3, 1)) < 0) { return r; }
 
-  if (_access(path, 0) != 0) return -1;
-  struct stat status; stat(path, &status);
-  if ((file_dir == 2 || file_dir == 3) && (status.st_mode & S_IFDIR) != 0) return 0;
-  if ((file_dir == 1 || file_dir == 3) && (_S_IFREG & status.st_mode) != 0) return 0;
+  struct stat status; r=stat(path, &status); if(r!=0) return -1;
+  if ((file_dir == 2 || file_dir == 3) && (status.st_mode & S_IFDIR)) return 0;
+  if ((file_dir == 1 || file_dir == 3) && (S_IFREG & status.st_mode)) return 0;
   return -1;
 }
 
 
 
-INT64 idealand_get_file_info(char* pattern, IdealandFd* pf, int print)
+INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInfo* pf, int print)
 {
   int r = 0;
-  if ((r = idealand_check_string(pattern, 0, (char*)"pattern", __func__, IdealandMaxPathLen, 1)) < 0) { return r; }
-  if ((r = idealand_check_pointer(pf, (char*)"pf", __func__)) < 0) { return r; }
+  if ((r = idealand_check_filename(collection, "collection", __func__)) < 0) { return r; }
+  if ((r = idealand_check_filename(name_start, "name_start", __func__)) < 0) { return r; }
+  if ((r = idealand_check_pointer(pf, "pf", __func__)) < 0) { return r; }
 
-  intptr_t fHandle; 
-  if ((fHandle = _findfirst(pattern, pf)) == -1) { if (print) idealand_log("cannot find file: %s\n", pattern); return -1; }
-  _findclose(fHandle); 
-  // if(name!=NULL) idealand_string_wchar_to_utf8(pf->name, name, IdealandMaxNameLen - 1);
-  if (print) idealand_log("found file %s\n", pf->name);
 
+#ifdef _MSC_VER
+  char* pattern = idealand_string(IdealandMaxPathLen - 1, NULL, "%s/%s*", collection, name_start); if (pattern == NULL) return -1;
+  intptr_t fHandle;  IdealandFd fd;
+  if ((fHandle = _findfirst(pattern, &fd)) == -1) { if (print) idealand_log("cannot find file: %s\n", pattern); return -1; }
+  _findclose(fHandle);  
+  pf->size = fd.size; memcpy(pf->name, fd.name, strlen(fd.name)+1); pf->isdir = 0; 
+  if (print) idealand_log("found file %s\n", fd.name);
+  return pf->size;
   //do {
   //  printf("找到文件:%s,文件大小：%d\n", fileinfo.name, fileinfo.size);
   //} while (_findnext(fHandle, &fileinfo) == 0);
+#elif __GNUC__
+  int got = 0; struct dirent* pent; DIR* pd = opendir(collection);
+  if (!pd) { idealand_log("open collection(%s) failed", collection); return -1; }
+  while (pent = readdir(pd))
+  {
+    if (pent->d_type == DT_DIR || strcmp(pent->d_name, name_start)) { continue; }  else { got = 1;  break; }
+  }
+  closedir(pd);
 
-  return pf->size;
+  if (got)
+  {
+    char* path = idealand_string(IdealandMaxPathLen - 1, NULL, "%s/%s", collection, pent->d_name); if (path == NULL) return -1;
+    struct stat s; r = stat(path, &s); if (r != 0) return -1;
+    if (S_IFREG & s.st_mode) { strcpy(pf->name, pent->d_name); pf->size = s.st_size; pf->isdir = (s.st_mode & S_IFDIR); return pf->size; } 
+  }
+  return -1;
+#endif
 }
-INT64 idealand_get_file_info(char* collection, int no, IdealandFd* pf, int print)
+INT64 idealand_get_file_info(char* collection, int no, IdealandFileInfo* pf, int print)
 {
-  INT64 r = 0;
-  if ((r = idealand_check_filename(collection, (char*)"collection", __func__)) < 0) { return r; }
-  if ((r = idealand_check_int(no, (char*)"no", __func__, IdealandDirMaxFilesCount, 0)) < 0) { return r; }
-  if ((r = idealand_check_pointer(pf, (char*)"pf", __func__)) < 0) { return r; }
-
-  char* search = idealand_string(IdealandMaxPathLen, NULL, (char*)"%s/%04d*", collection, no); if (search == NULL) { return -1; }
-  r = idealand_get_file_info(search, pf, print); free(search); return r;
+  char name_start[5]; sprintf_s(name_start, 5, "%04d", no); name_start[4]=0;
+  return idealand_get_file_info(collection, name_start, pf, print); 
 }
+
+
 
 
 
@@ -88,10 +114,16 @@ char * idealand_file_mkdir(char* name, char* parent)
   
   if (path == NULL) { r = -1; goto free1; }
   if (idealand_file_exist(path, 2) >= 0) {  /* printf("dir(%s) exists, no need to create.\n", path); */  goto free1; }
-  else if (_mkdir(path) != 0) { idealand_log("create dir %s fail.", path); r = -1;  goto free2; }
+  
+#ifdef _MSC_VER
+  r=_mkdir(path);
+#elif __GNUC__
+  r=mkdir(path, 0700); // owner can read, write and execute
+#endif
+  if (r != 0) { idealand_log("create dir %s fail.", path); r = -1;  goto free2; }
   else { idealand_log("create dir %s succeed.\n", path); goto free1; }
 
-free2: free(path);
+free2: free(path); path = NULL;
 free1:  if (parent2 != parent && parent2 != NULL) free(parent2);
   if (r >= 0) return path; else return NULL;
 }

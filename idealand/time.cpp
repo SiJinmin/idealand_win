@@ -1,31 +1,42 @@
-﻿double idealand_time_yyyyMMddHHmmss()
+﻿// https://www.ibm.com/docs/en/zos/2.3.0?topic=functions-gettimeofday-gettimeofday64-get-date-time
+double idealand_time_get(IdealandTime *ptime)
 {
+  int r = 0;
+  if ((r = idealand_check_pointer(ptime, "ptime", __func__)) < 0) return r;
+
+#ifdef _MSC_VER
   SYSTEMTIME currentTime;  GetSystemTime(&currentTime);
-  INT64 year = currentTime.wYear;
-  INT64 month = currentTime.wMonth;
-  INT64 day = currentTime.wDay;
-  INT64 hour = currentTime.wHour;
-  INT64 minute = currentTime.wMinute;
-  INT64 second = currentTime.wSecond;
-  INT64 millisecond = currentTime.wMilliseconds;
+  ptime->year = currentTime.wYear;
+  ptime->month = (INT8)currentTime.wMonth;
+  ptime->day = (INT8)currentTime.wDay;
+  ptime->hour = (INT8)currentTime.wHour;
+  ptime->minute = (INT8)currentTime.wMinute;
+  ptime->second = (INT8)currentTime.wSecond;
+  ptime->msecond = (INT16)currentTime.wMilliseconds;
+#elif __GNUC__
+  time_t now; time(&now); struct tm parts, *p=&parts;  gmtime_r(&now, p); //把日期和时间转换为格林威治(GMT)时间的函数
+  // p = localltime(&timep); //此函数获得的tm结构体的时间，是已经进行过时区转化为本地时间  
+  struct timeval te; gettimeofday(&te, NULL); 
+  ptime->year = 1900 + p->tm_year;
+  ptime->month = 1 + p->tm_mon;
+  ptime->day = p->tm_mday;
+  ptime->hour = p->tm_hour;
+  ptime->minute = p->tm_min;
+  ptime->second = p->tm_sec;
+  ptime->msecond = te.tv_usec/1000; 
+  ptime->usecond = te.tv_usec; 
+  //printf("Weekday:  %d\n", p->tm_wday);
+  //printf("Days:  %d\n", p->tm_yday);
+  //printf("Isdst:  %d\n", p->tm_isdst); 
+#endif
 
-  return year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second+ millisecond/1000.0;
+  return 0;
+}
 
-
-  /*  time_t timep; struct tm* p; time(&timep);
-  p = localltime(&timep); //此函数获得的tm结构体的时间，是已经进行过时区转化为本地时间
-  //p = gmtime(&timep); //把日期和时间转换为格林威治(GMT)时间的函数
-  INT64 year = 1900 + p->tm_year;
-  INT64 month = 1 + p->tm_mon;
-  INT64 day = p->tm_mday;
-  INT64 hour = p->tm_hour;
-  INT64 minute = p->tm_min;
-  INT64 second = p->tm_sec;
-  INT64 second = p->tm_;
-  printf("Weekday:  %d\n", p->tm_wday);
-  printf("Days:  %d\n", p->tm_yday);
-  printf("Isdst:  %d\n", p->tm_isdst);  */
-
+double idealand_time_yyyyMMddHHmmss()
+{  
+  IdealandTime time; idealand_time_get(&time);
+  return time.year * 10000000000 + time.month * 100000000 + time.day * 1000000 + time.hour * 10000 + time.minute * 100 + time.second+ time.msecond/1000.0;
 }
 
 
@@ -38,24 +49,17 @@ char * idealand_time_yyyyMMddHHmmss_text()
 }
 
 char* idealand_time_text(char mode)
-{
-  SYSTEMTIME currentTime;  GetSystemTime(&currentTime);
-  int year = currentTime.wYear;
-  int month = currentTime.wMonth;
-  int day = currentTime.wDay;
-  int hour = currentTime.wHour;
-  int minute = currentTime.wMinute;
-  int second = currentTime.wSecond;
-  int millisecond = currentTime.wMilliseconds;
+{  
+  IdealandTime time; idealand_time_get(&time);
 
   char* buf = (char*)idealand_malloc(50); if (buf == NULL) return NULL; int count = -1;
   
   if(mode=='m')
-    count=sprintf_s(buf, 49, "%02d:%02d.%03d", minute, second, millisecond);
+    count=sprintf_s(buf, 49, "%02d:%02d.%03d", time.minute, time.second, time.msecond);
   else if (mode == 'd')
-    count = sprintf_s(buf, 49, "%04d-%02d-%02d", year, month, day);
+    count = sprintf_s(buf, 49, "%04d-%02d-%02d", time.year, time.month, time.day);
   else
-    count = sprintf_s(buf, 49, "%04d-%02d-%02d %02d:%02d:%02d.%03d", year, month, day, hour, minute, second, millisecond);
+    count = sprintf_s(buf, 49, "%04d-%02d-%02d %02d:%02d:%02d.%03d", time.year, time.month, time.day, time.hour, time.minute, time.second, time.msecond);
 
   if (count >= 0 && count < 49) { buf[count] = 0; return buf; }  else return NULL;
 }

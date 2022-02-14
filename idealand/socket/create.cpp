@@ -9,7 +9,7 @@ int idealand_socket_create_listen(struct addrinfo* pAddr, SOCKET* p)
 
   idealand_log("creating listen socket...\n");
   *p = socket(pAddr->ai_family, pAddr->ai_socktype, pAddr->ai_protocol);
-  if (*p == INVALID_SOCKET || *p==NULL) { idealand_socket_error(); idealand_log("create listen socket type failed."); return -1; }
+  if (*p == INVALID_SOCKET) { idealand_socket_error(); idealand_log("create listen socket type failed."); return -1; }
   if (bind(*p, pAddr->ai_addr, (int)pAddr->ai_addrlen) == SOCKET_ERROR) 
   { closesocket(*p); *p = INVALID_SOCKET; idealand_socket_error(); idealand_log("bind listen socket failed."); return -1; }
   if (listen(*p, SOMAXCONN) == SOCKET_ERROR) 
@@ -30,11 +30,11 @@ int idealand_socket_create_connect(struct addrinfo* pAddr, SOCKET* p)
   struct addrinfo* pAddr2 = NULL; for (pAddr2 = pAddr; pAddr2 != NULL; pAddr2 = pAddr2->ai_next)
   {    
     *p = socket(pAddr2->ai_family, pAddr2->ai_socktype, pAddr2->ai_protocol);
-    if (*p == INVALID_SOCKET || *p == NULL) { idealand_socket_error(); idealand_log("create connect socket type fail"); return -1; }
+    if (*p == INVALID_SOCKET) { idealand_socket_error(); idealand_log("create connect socket type fail"); return -1; }
     if (connect(*p, pAddr2->ai_addr, (int)pAddr2->ai_addrlen) == SOCKET_ERROR) { closesocket(*p); *p = INVALID_SOCKET; continue; } 
     // 连接成功
-    if(idealand_socket_set_timeout(p, SO_SNDTIMEO, IdealandSocketTimeout)<0)  return -1;
-    if(idealand_socket_set_timeout(p, SO_RCVTIMEO, IdealandSocketTimeout)<0)  return -1;
+    if(idealand_socket_set_timeout(p, SO_SNDTIMEO)<0)  return -1;
+    if(idealand_socket_set_timeout(p, SO_RCVTIMEO)<0)  return -1;
     idealand_log("create connect socket succeed.\n"); return 0;
   }
   idealand_socket_error(); idealand_log("socket is unable to connect to server"); return -2;
@@ -55,9 +55,9 @@ int idealand_socket_create_accept(SOCKET* pListen, SOCKET* p)
 
   idealand_log("accepting client socket connection ...\n");
   *p = accept(*pListen, NULL, NULL);
-  if (*p == INVALID_SOCKET || *p == NULL) { idealand_socket_error(); idealand_log("accept client socket failed."); return -1; }
-  if (idealand_socket_set_timeout(p, SO_SNDTIMEO, IdealandSocketTimeout)<0)  return -1;
-  if (idealand_socket_set_timeout(p, SO_RCVTIMEO, IdealandSocketTimeout)<0)  return -1;
+  if (*p == INVALID_SOCKET) { idealand_socket_error(); idealand_log("accept client socket failed."); return -1; }
+  if (idealand_socket_set_timeout(p, SO_SNDTIMEO)<0)  return -1;
+  if (idealand_socket_set_timeout(p, SO_RCVTIMEO)<0)  return -1;
   idealand_log("accept client socket succeed\n"); return 0;
 }
 

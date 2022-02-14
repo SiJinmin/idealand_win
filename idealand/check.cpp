@@ -10,8 +10,8 @@ int idealand_check_string(char* str, int allowNull, char* name, char* functionNa
   else
   {
     INT64 len = strlen(str);
-    if (len > maxLen) { idealand_log((char*)"%s(len=%lld) cannot be longer than %d in %s", name, len, maxLen, functionName); return -1; }
-    if (len < minLen) { idealand_log((char*)"%s(len=%lld) cannot be shorter than %d in %s", name, len, maxLen, functionName); return -1; }
+    if (len > maxLen) { idealand_log((char*)"%s(len=%ld) cannot be longer than %d in %s", name, len, maxLen, functionName); return -1; }
+    if (len < minLen) { idealand_log((char*)"%s(len=%ld) cannot be shorter than %d in %s", name, len, maxLen, functionName); return -1; }
   }
   return 0;
 }

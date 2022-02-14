@@ -10,11 +10,11 @@ INT64 idealand_string_remove_repeat(char repeat, char* str);
 /* caller should free(r) if not NULL; 
    pcount return the char count if pcount is not NULL;
    full controls the parts included, 1 means all parts, 0 means only the highest part;   */
-char* idealand_string_time_length(INT64 seconds, int full = 0, int* pcount=NULL);
+char* idealand_string_time_length(long seconds, int full = 0, int* pcount=NULL);
 /* caller should free(r) if not NULL; 
    pcount return the char count if pcount is not NULL;  
    full controls the parts included, 1 means all parts, 0 means only the highest part; */
-char* idealand_string_size(INT64 bytes, int full = 0, int* pcount = NULL);
+char* idealand_string_size(long long bytes, int full = 0, int* pcount = NULL);
 /* return the index of the first c in str, negative values if error. */
 INT64 idealand_string_index(char c, char *str);
 /* return the index of the last c in str, negative values if error. */

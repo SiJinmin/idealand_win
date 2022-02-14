@@ -49,7 +49,8 @@ int idealand_the_work(IdealandMainArgs* pMargs)
   {
     if (pMargs->mode == 'b') 
     {
-      _beginthreadex(NULL, 0, idealand_start_download_func, pMargs, 0, NULL); idealand_start_server();
+      idealand_thread_create(idealand_start_download_func, pMargs);
+      idealand_start_server();
     }
     else if (pMargs->mode == 'd') idealand_start_download(pMargs);
     else if (pMargs->mode == 's') idealand_start_server();

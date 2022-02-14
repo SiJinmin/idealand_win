@@ -38,10 +38,22 @@ free1:
 
 }
 
-unsigned int __stdcall idealand_start_download_func(void *args)
+void *idealand_start_download_func_gcc(void *args)
 {
+  void *pr=idealand_malloc(sizeof(int)); if(pr==NULL) return NULL;
   idealand_thread_start();
-  int r = idealand_start_download(args);  
+  *(int *)pr = idealand_start_download(args);  
   idealand_thread_end();
-  return r >= 0 ? 1 : 0;
+  return pr;
 }
+#ifdef _MSC_VER
+  unsigned int __stdcall idealand_start_download_func_msc(void* args)
+  {
+    void* pr = idealand_start_download_func_gcc(args); if (pr == NULL) return 0; int r = *((int*)pr); free(pr);
+    return  r >= 0 ? 1 : 0;
+  }
+  #define idealand_start_download_func idealand_start_download_func_msc
+#elif __GNUC__
+  #define idealand_start_download_func idealand_start_download_func_gcc
+#endif
+

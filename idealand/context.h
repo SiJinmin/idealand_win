@@ -1,5 +1,13 @@
-﻿// function typedefs
+﻿
+// function typedefs
 typedef int (*IdealandWork)(IdealandMainArgs* pMargs);
+
+
+#ifdef _MSC_VER
+  typedef unsigned (_stdcall* IdealandThreadFunc)(void* pArgs);
+#elif __GNUC__
+  typedef void* (*IdealandThreadFunc)(void* pArgs);
+#endif
 
 
 // idealand.cpp
@@ -8,12 +16,15 @@ int idealand_the_work(IdealandMainArgs* pMargs);
 
 /*
 wprintf(L"宽中文\n"); printf("我1\n"); idealand_print_encoding("我1");
-IdealandFd fd; char name[IdealandMaxNameLen] = {0}; idealand_get_file_info("1*1", &fd, 1); idealand_print_encoding(fd.name);
+IdealandFileInfo fd; char name[IdealandMaxNameLen] = {0}; idealand_get_file_info("1*1", &fd, 1); idealand_print_encoding(fd.name);
 */
 /* CHCP 65001 should be place at beginning as it may clears screen */
 inline void idealand_set_encoding() 
 { 
-  system("CHCP 65001"); setlocale(LC_ALL, ".UTF8"); printf("set encoding to utf8\n"); // idealand_log hasn't been included
+#ifdef _MSC_VER
+  system("CHCP 65001"); 
+#endif  
+  setlocale(LC_ALL, "en_US.UTF-8"); printf("set encoding to utf8\n"); // idealand_log hasn't been included
 }
 
 

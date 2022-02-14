@@ -1,7 +1,7 @@
 ﻿
 
 
-int idealand_socket_check_pointer(SOCKET* p, const char* name, const char* functionName, int allowInvalid, int close)
+int idealand_socket_check_pointer(SOCKET* p, const char* name, const char* functionName, int allowInvalid, int need_close)
 {
   if (p == NULL || *p == INVALID_SOCKET)
   {
@@ -9,7 +9,7 @@ int idealand_socket_check_pointer(SOCKET* p, const char* name, const char* funct
   }
   else
   {
-    if (close) { closesocket(*p); *p = INVALID_SOCKET; } return 0;
+    if (need_close) { closesocket(*p); *p = INVALID_SOCKET; } return 0;
   }
 }
 
@@ -34,7 +34,7 @@ int idealand_socket_check_structs(SOCKET* p)
   }
   else if (r == 16)
   {
-    r = -1; idealand_log("sent structs size %I64d is not equal to server size %I64d.\n", *buf2, *(buf2 + 1));
+    r = -1; idealand_log("sent structs size %ld is not equal to server size %ld.\n", *buf2, *(buf2 + 1));
   }
   else r = -1;  
 

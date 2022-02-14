@@ -22,8 +22,8 @@ int idealand_print_transfer_speed(INT64 usedSeconds, INT64 transferedSize, INT64
   INT64 remainSeconds = 0, speed = 0;
   if (usedSeconds > 0) speed = (transferedSize / usedSeconds); if (speed > 0) remainSeconds = (fileSize - clientSize - transferedSize) / speed;
   char* totalText = idealand_string_size(transferedSize, 1); if(totalText == NULL) r= -1;
-  char* usedTime = idealand_string_time_length(usedSeconds); if (usedTime == NULL) r= -1;
-  char* remainTime = idealand_string_time_length(remainSeconds); if (remainTime == NULL) r= -1;
+  char* usedTime = idealand_string_time_length((long)usedSeconds); if (usedTime == NULL) r= -1;
+  char* remainTime = idealand_string_time_length((long)remainSeconds); if (remainTime == NULL) r= -1;
   char* speedText = idealand_string_size(speed); if (speedText == NULL) r= -1;
   if (r >= 0) 
   {

@@ -10,15 +10,25 @@ int idealand_serve_client(SOCKET* pclient, INT8* buf)
 
 
 
-unsigned int __stdcall idealand_serve_client_thread_func(void* args)
+void *idealand_serve_client_thread_func_gcc(void* args)
 {
+  void* pr = idealand_malloc(sizeof(int)); if (pr == NULL) return NULL;
   idealand_thread_start();
   INT8 buf[IdealandBufferSize];  SOCKET* pclient = (SOCKET*)args;
-  idealand_serve_client(pclient, buf);
+  *(int*)pr = idealand_serve_client(pclient, buf);
   if (pclient !=NULL && *pclient != INVALID_SOCKET) closesocket(*pclient);
   idealand_thread_end();
-  return 0;
+  return pr;
 }
+#ifdef _MSC_VER
+  unsigned int __stdcall idealand_serve_client_thread_func_msc(void* args)
+  {
+    idealand_serve_client_thread_func_gcc(args);  return 0;
+  }
+  #define idealand_serve_client_thread_func idealand_serve_client_thread_func_msc
+#elif __GNUC__
+  #define idealand_serve_client_thread_func idealand_serve_client_thread_func_gcc
+#endif
 
 
 
@@ -37,7 +47,7 @@ int idealand_start_server()
     idealand_log("\n\n%d. waiting for client connect...\n", acceptCount);
     SOCKET* pclient = (SOCKET*)idealand_malloc(sizeof(SOCKET)); if (pclient == NULL) { r = -1; goto end; } *pclient = INVALID_SOCKET;
     if ((r = idealand_socket_create_accept(plisten, pclient)) < 0) goto end;
-    _beginthreadex(NULL, 0, idealand_serve_client_thread_func, pclient, 0, NULL); 
+    idealand_thread_create(idealand_serve_client_thread_func, pclient);
     continue;
     //if ((r = idealand_socket_check_structs_answer(pclient)) < 0) goto end;
     //r = idealand_socket_file_send(pclient, buf); if (r >= 0) continue;
