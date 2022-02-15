@@ -78,6 +78,7 @@ const INT64 IdealandMaxSeconds = 60LL * 60 * 24 * 365 * 1000000; // 100万年
 
 /* threads */
 const int IdealandMaxThreads = 100;
+pthread_mutex_t IdealandReaddirMutex;
 
 /* size, buffer, text */
 const INT64 IdealandMaxSize = 1024LL * 1024 * 1024 * 10; // 10G

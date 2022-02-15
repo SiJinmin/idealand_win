@@ -49,7 +49,6 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
   if ((r = idealand_check_filename(name_start, "name_start", __func__)) < 0) { return r; }
   if ((r = idealand_check_pointer(pf, "pf", __func__)) < 0) { return r; }
 
-
 #ifdef _MSC_VER
   char* pattern = idealand_string(IdealandMaxPathLen - 1, NULL, "%s/%s*", collection, name_start); if (pattern == NULL) return -1;
   intptr_t fHandle;  IdealandFd fd;
@@ -62,6 +61,7 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
   //  printf("找到文件:%s,文件大小：%d\n", fileinfo.name, fileinfo.size);
   //} while (_findnext(fHandle, &fileinfo) == 0);
 #elif __GNUC__
+  pthread_mutex_lock(&IdealandReaddirMutex); 
   int got = 0; struct dirent* pent; DIR* pd = opendir(collection);
   if (!pd) { idealand_log("open collection(%s) failed", collection); return -1; }
   while (pent = readdir(pd))
@@ -69,6 +69,7 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
     if (pent->d_type == DT_DIR || strcmp(pent->d_name, name_start)) { continue; }  else { got = 1;  break; }
   }
   closedir(pd);
+  pthread_mutex_unlock(&IdealandReaddirMutex); 
 
   if (got)
   {

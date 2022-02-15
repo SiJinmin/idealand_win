@@ -20,20 +20,20 @@
 #include <time.h>
 #include <locale.h>
 #include <signal.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
 
 
 
 #ifdef _MSC_VER
 
+#include <io.h>
 #include <direct.h>
 #include <tchar.h>
 #include <Windows.h>
 #include <wingdi.h>
 #include <process.h>
-#include <io.h>
 
 #elif __GNUC__
 

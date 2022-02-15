@@ -1,6 +1,6 @@
 ﻿void idealand_threads_init();
-IdealandThreadInfo* idealand_thread_by_id(INT32 id=-1, int print=1);
+IdealandThreadInfo* idealand_thread_by_id(long long  id=-1, int print=1);
 /* caller should free(r) if not NULL */
-char* idealand_thread_log_path(INT32 id, int end=0);
-void idealand_thread_start(INT32 id=-1);
-void idealand_thread_end(INT32 id=-1);
+char* idealand_thread_log_path(long long id, int end=0);
+void idealand_thread_start(long long  id=-1);
+void idealand_thread_end(long long  id=-1);
