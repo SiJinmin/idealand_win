@@ -1,25 +1,5 @@
 ﻿
 
-int idealand_exit(int r)
-{
-  for (int i = 0; i < IdealandMaxThreads; i++) 
-  { int id = (IdealandThreads + i)->id;   if (id > 0) idealand_thread_end(id); }
-  idealand_thread_end(0);
-  if (IdealandConfPath != NULL)  free(IdealandConfPath);
-  if (IdealandDataPath != NULL)  free(IdealandDataPath);
-  if (IdealandLogsPath != NULL)  free(IdealandLogsPath);
-  pthread_mutex_destroy(&IdealandReaddirMutex);
-  exit(r >= 0 ? 0 : -1);
-  return r;
-}
-
-void idealand_signal_handler(int signal)
-{
-  idealand_log("\n\nsignal=%d", signal);
-  if (signal == SIGINT || signal == SIGABRT) // ctrl+c   abort();
-  { idealand_exit(0); }
-}
-
 int idealand_log(const char *format, ...)
 {
   if (format == NULL) return -1;
@@ -57,42 +37,38 @@ int idealand_log(const char *format, ...)
 }
 
 
+void* idealand_malloc(INT64 size)
+{
+  if (idealand_check_malloc_size(size, "size", __func__) < 0) { return NULL; }
+  void* r = malloc(size); if (r == NULL) { idealand_log("malloc %ld bytes fail.", size); }
+  return r;
+}
+
+
+void idealand_signal_handler(int signal)
+{
+  idealand_log("\n\nsignal=%d", signal);
+  if (signal == SIGINT || signal == SIGABRT) // ctrl+c   abort();
+  {
+    idealand_exit(0);
+  }
+}
+
+
+
 int idealand_check_set_runtime()
 {
   signal(SIGINT, idealand_signal_handler);
 
   idealand_log("\nidealand_check_set_runtime() ...\n");
 
-  /*idealand_log("os:");
-#ifdef _WIN64  
-  idealand_log("  _WIN64, version = %x", (int)WINVER);
-#elif _WIN32  
-  idealand_log("  _WIN32, version = %x", (int)WINVER);
-#elif __linux
-  idealand_log("  __linux");
-#else
-  idealand_log("  unknown os");
-#endif
-
-  idealand_log("app type:");
-#ifdef _WINDOWS
-  idealand_log("  _WINDOWS graphical UI");
-#elif _CONSOLE 
-  idealand_log("_CONSOLE console");
-#else
-  idealand_log("unknown app type");
-#endif*/
-
-  idealand_log("compiler:");
 #ifdef _MSC_VER
-  idealand_log("  microsoft visual studio (_MSC_VER = %d)", _MSC_VER);
+  idealand_log("compiler:  microsoft visual studio (_MSC_VER = %d)", _MSC_VER);
 #elif __GNUC__
-  idealand_log("  gcc (__GNUC__ = %d)", __GNUC__);
+  idealand_log("compiler:  gcc (__GNUC__ = %d)", __GNUC__);
 #else
   idealand_log("unknown compiler");
 #endif
-
-
 
   // 检查大小端
   UINT16 a = 0x1234; UINT8 *p1 = (UINT8 *)&a; UINT8 *p2 = p1 + 1;
@@ -111,15 +87,23 @@ int idealand_check_set_runtime()
   idealand_log("conf path = %s\n", IdealandConfPath);
   if (idealand_file_change_work_dir(IdealandDataPath) < 0) return -1;
 
-  //
-  pthread_mutex_init(&IdealandReaddirMutex, NULL);
+  idealand_init_mutex(&IdealandReaddirMutex);
 
   idealand_log("check runtime succeed.\n\n"); return 0;
 }
 
-void *idealand_malloc(INT64 size)
+
+int idealand_exit(int r)
 {
-  if (idealand_check_malloc_size(size, "size", __func__) < 0) { return NULL; }
-  void *r = malloc(size); if (r == NULL) { idealand_log("malloc %ld bytes fail.", size); }
+  for (int i = 0; i < IdealandMaxThreads; i++)
+  {
+    long long id = (IdealandThreads + i)->id;   if (id > 0) idealand_thread_end(id);
+  }
+  idealand_thread_end(0);
+  if (IdealandConfPath != NULL)  free(IdealandConfPath);
+  if (IdealandDataPath != NULL)  free(IdealandDataPath);
+  if (IdealandLogsPath != NULL)  free(IdealandLogsPath);
+  idealand_destroy_mutex(IdealandReaddirMutex);
+  exit(r >= 0 ? 0 : -1);
   return r;
 }

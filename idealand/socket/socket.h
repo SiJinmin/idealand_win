@@ -28,15 +28,24 @@
 
 
 
+#ifdef  __GNUC__
+
+typedef int SOCKET;
+typedef const char* PCSTR;
+#define INVALID_SOCKET 0
+#define SOCKET_ERROR -1
+#define closesocket close
+int WSAGetLastError() { return errno; }
+
+#endif
+
+
+
+#define IdealandSocketTimeoutSeconds 10  // 10 seconds
 #ifdef _MSC_VER
-
-#elif __GNUC__  
-  #define INVALID_SOCKET 0
-  #define SOCKET_ERROR -1
-  #define closesocket close
-
-  int WSAGetLastError(){ return errno; }
-
+const INT32 IdealandSocketTimeout = IdealandSocketTimeoutSeconds * 1000;
+#elif __GNUC__
+struct timeval IdealandSocketTimeout = { IdealandSocketTimeoutSeconds,0 };
 #endif
 
 

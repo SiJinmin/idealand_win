@@ -49,19 +49,20 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
   if ((r = idealand_check_filename(name_start, "name_start", __func__)) < 0) { return r; }
   if ((r = idealand_check_pointer(pf, "pf", __func__)) < 0) { return r; }
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER  
   char* pattern = idealand_string(IdealandMaxPathLen - 1, NULL, "%s/%s*", collection, name_start); if (pattern == NULL) return -1;
-  intptr_t fHandle;  IdealandFd fd;
-  if ((fHandle = _findfirst(pattern, &fd)) == -1) { if (print) idealand_log("cannot find file: %s\n", pattern); return -1; }
+  idealand_get_mutex(IdealandReaddirMutex); intptr_t fHandle;  IdealandFd fd;
+  if ((fHandle = _findfirst(pattern, &fd)) == -1) { if (print) idealand_log("cannot find file: %s\n", pattern); r = -1; goto freem; }
   _findclose(fHandle);  
-  pf->size = fd.size; memcpy(pf->name, fd.name, strlen(fd.name)+1); pf->isdir = 0; 
-  if (print) idealand_log("found file %s\n", fd.name);
-  return pf->size;
+  r=pf->size = fd.size; memcpy(pf->name, fd.name, strlen(fd.name)+1); pf->isdir = 0; if (print) idealand_log("found file %s\n", fd.name);
+freem:
+  free(pattern); idealand_release_mutex(IdealandReaddirMutex); return r;
+
   //do {
   //  printf("找到文件:%s,文件大小：%d\n", fileinfo.name, fileinfo.size);
   //} while (_findnext(fHandle, &fileinfo) == 0);
 #elif __GNUC__
-  pthread_mutex_lock(&IdealandReaddirMutex); 
+  idealand_get_mutex(IdealandReaddirMutex); 
   int got = 0; struct dirent* pent; DIR* pd = opendir(collection);
   if (!pd) { idealand_log("open collection(%s) failed", collection); return -1; }
   while (pent = readdir(pd))
@@ -69,7 +70,7 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
     if (pent->d_type == DT_DIR || strcmp(pent->d_name, name_start)) { continue; }  else { got = 1;  break; }
   }
   closedir(pd);
-  pthread_mutex_unlock(&IdealandReaddirMutex); 
+  idealand_release_mutex(IdealandReaddirMutex);
 
   if (got)
   {
@@ -80,6 +81,9 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
   return -1;
 #endif
 }
+
+
+
 INT64 idealand_get_file_info(char* collection, int no, IdealandFileInfo* pf, int print)
 {
   char name_start[5]; sprintf_s(name_start, 5, "%04d", no); name_start[4]=0;

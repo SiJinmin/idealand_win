@@ -14,11 +14,7 @@
   typedef int32_t INT32;
   typedef int64_t INT64;
 
-  typedef int SOCKET;
-  typedef const char* PCSTR;
 
-
-  #define GetCurrentThreadId pthread_self
   #define sprintf_s snprintf
   #define vsprintf_s vsnprintf
   #define _chdir chdir
@@ -78,7 +74,6 @@ const INT64 IdealandMaxSeconds = 60LL * 60 * 24 * 365 * 1000000; // 100万年
 
 /* threads */
 const int IdealandMaxThreads = 100;
-pthread_mutex_t IdealandReaddirMutex;
 
 /* size, buffer, text */
 const INT64 IdealandMaxSize = 1024LL * 1024 * 1024 * 10; // 10G
@@ -87,14 +82,9 @@ const int IdealandMallocMaxSize = 1024 * 1024 * 512; // 512M
 const int IdealandBufferSize = 32 * 1024;            // 32k
 const int IdealandTextSize = 3 * 1024;               // 3k
 
-/* socket */
-#ifdef _MSC_VER
-const INT32 IdealandSocketTimeout = 10000; // 10 seconds
-#elif __GNUC__
-struct timeval IdealandSocketTimeout={10,0};
+/* network */
 #endif
 const int IdealandListenPort = 27015;
-const int IdealandsMaxSocketConnectTimes = 200;
 
 /* keys */
 char IdealandGoogleApiKey[] = "AIzaSyBUW0bQL_5immPnsCQ4xF-LDUYOSon7sYI";

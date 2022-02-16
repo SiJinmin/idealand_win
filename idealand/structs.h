@@ -55,7 +55,7 @@ typedef struct idealand_main_args
 
 typedef struct idealand_thread_info
 {
-  INT32 id;
+  long long id;
   char status[10];
   FILE *pLog;
   char *log_path;

@@ -83,3 +83,50 @@ void idealand_thread_end(long long id)
   free(p->log_path);
   free(path_end);
 }
+
+
+
+void idealand_init_mutex(IdealandMutex *p)
+{
+#ifdef _MSC_VER
+  *p = CreateMutex(
+    NULL,              // default security attributes
+    FALSE,             // initially not owned
+    NULL);             // unnamed mutex
+#elif __GNUC__
+  *p = (IdealandMutex)idealand_malloc(sizeof(pthread_mutex_t));
+  pthread_mutex_init(*p, NULL);
+#endif
+}
+
+
+
+void idealand_get_mutex(IdealandMutex mutex)
+{
+#ifdef _MSC_VER
+  WaitForSingleObject(mutex, INFINITE);
+#elif __GNUC__
+  pthread_mutex_lock(mutex);
+#endif
+}
+
+
+
+void idealand_release_mutex(IdealandMutex mutex)
+{
+#ifdef _MSC_VER
+  ReleaseMutex(mutex);
+#elif __GNUC__
+  pthread_mutex_unlock(mutex);
+#endif
+}
+
+
+void idealand_destroy_mutex(IdealandMutex mutex)
+{
+#ifdef _MSC_VER
+  CloseHandle(mutex);
+#elif __GNUC__
+  pthread_mutex_destroy(mutex);
+#endif
+}

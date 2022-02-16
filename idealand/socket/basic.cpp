@@ -3,7 +3,7 @@
 
 void idealand_socket_error()
 {
-  idealand_log("idealand socket error (%ld): ", WSAGetLastError());
+  idealand_log("\nidealand socket error (%ld): ", WSAGetLastError());
 } 
 
 

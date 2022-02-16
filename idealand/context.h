@@ -28,11 +28,6 @@ inline void idealand_set_encoding()
 }
 
 
-int idealand_check_set_runtime();
-/* caller should free(r) is not NULL. */
-void* idealand_malloc(INT64 size);
-
-
 
 
 
@@ -51,3 +46,11 @@ inline void log(source_loc source, level::level_enum lvl, format_string_t<Args..
 #define printError(fmt, ...) printf(strcat("logo: ", fmt), ##__VA_ARGS__)  */
 /* return the char count not including ending \n, or negative value for errors */
 int idealand_log(const char* format, ...);
+/* caller should free(r) is not NULL. */
+void* idealand_malloc(INT64 size);
+void idealand_signal_handler(int signal);
+
+
+int idealand_check_set_runtime();
+int idealand_exit(int r);
+
