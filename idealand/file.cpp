@@ -48,6 +48,7 @@ INT64 idealand_get_file_info(char* collection, char* name_start, IdealandFileInf
   if ((r = idealand_check_filename(collection, "collection", __func__)) < 0) { return r; }
   if ((r = idealand_check_filename(name_start, "name_start", __func__)) < 0) { return r; }
   if ((r = idealand_check_pointer(pf, "pf", __func__)) < 0) { return r; }
+  int start_len=strlen(name_start);
 
 #ifdef _MSC_VER  
   char* pattern = idealand_string(IdealandMaxPathLen - 1, NULL, "%s/%s*", collection, name_start); if (pattern == NULL) return -1;
@@ -67,7 +68,7 @@ freem:
   if (!pd) { idealand_log("open collection(%s) failed", collection); return -1; }
   while (pent = readdir(pd))
   {
-    if (pent->d_type == DT_DIR || strcmp(pent->d_name, name_start)) { continue; }  else { got = 1;  break; }
+    if (pent->d_type == DT_DIR || memcmp(pent->d_name, name_start, start_len)) { continue; }  else { got = 1;  break; }
   }
   closedir(pd);
   idealand_release_mutex(IdealandReaddirMutex);

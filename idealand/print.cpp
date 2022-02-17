@@ -27,8 +27,9 @@ int idealand_print_transfer_speed(INT64 usedSeconds, INT64 transferedSize, INT64
   char* speedText = idealand_string_size(speed); if (speedText == NULL) r= -1;
   if (r >= 0) 
   {
-    idealand_print_clear(preCharCount);
-    r = printf("%s(%.1f%%), %s/%s, %s/sec", totalText, percentage, usedTime, remainTime, speedText);
+    //idealand_print_clear(preCharCount);
+    printf("\r"); r = printf("%s(%.1f%%), %s/%s, %s/sec", totalText, percentage, usedTime, remainTime, speedText); fflush(stdout);
+    if(r<preCharCount) { for(int c=0;c<preCharCount-r;c++) printf(" "); }
     if(percentage==100){ idealand_log("file download completed: total = %s, used time = %s, speed = %s/sec", totalText, usedTime, speedText);  }
   }
   if (totalText != NULL)free(totalText); if (usedTime != NULL)free(usedTime); if (remainTime != NULL)free(remainTime); if (speedText != NULL)free(speedText);

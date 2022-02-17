@@ -83,7 +83,6 @@ const int IdealandBufferSize = 32 * 1024;            // 32k
 const int IdealandTextSize = 3 * 1024;               // 3k
 
 /* network */
-#endif
 const int IdealandListenPort = 27015;
 
 /* keys */

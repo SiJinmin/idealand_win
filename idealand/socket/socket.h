@@ -20,33 +20,37 @@
   #include <sys/socket.h>
   #include <netinet/in.h>
 #endif
-#include "basic.h"
-#include "address.h"
-#include "create.h"
-#include "check.h"
-#include "file.h"
 
 
 
-#ifdef  __GNUC__
+#define IdealandSocketTimeoutSeconds 10  // 10 seconds
 
-typedef int SOCKET;
-typedef const char* PCSTR;
+
+
+#ifdef _MSC_VER
+
+const INT32 IdealandSocketTimeout = IdealandSocketTimeoutSeconds * 1000;
+
+#elif __GNUC__
+
 #define INVALID_SOCKET 0
 #define SOCKET_ERROR -1
 #define closesocket close
+struct timeval IdealandSocketTimeout = { IdealandSocketTimeoutSeconds,0 };
+typedef int SOCKET;
+typedef const char* PCSTR;
 int WSAGetLastError() { return errno; }
 
 #endif
 
 
 
-#define IdealandSocketTimeoutSeconds 10  // 10 seconds
-#ifdef _MSC_VER
-const INT32 IdealandSocketTimeout = IdealandSocketTimeoutSeconds * 1000;
-#elif __GNUC__
-struct timeval IdealandSocketTimeout = { IdealandSocketTimeoutSeconds,0 };
-#endif
+#include "basic.h"
+#include "address.h"
+#include "create.h"
+#include "check.h"
+#include "file.h"
+
 
 
 

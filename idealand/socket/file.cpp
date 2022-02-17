@@ -159,9 +159,10 @@ int idealand_socket_file_receive(char* collection, int no, INT64 clientSize, SOC
   {
     if (total == 0 && read > 0) { buf2 = buf + (IdealandFiSize + nameLen); } else { read = idealand_socket_recv(p, buf); buf2 = buf; }
     if (read > 0) { total += read; fwrite(buf2, 1, read, pf); } else if (read<0) { r = read; idealand_log("socket receive failed.\n");  }
-    time(&now); if (usedSeconds == 0 || now - start > usedSeconds + timeStep || total + clientSize >= fileSize || r<0 || read<=0)
+    time(&now); //printf("now diff = %d\n", (int)(now - start - usedSeconds - timeStep));
+    if (usedSeconds == 0 || now - start > usedSeconds + timeStep || total + clientSize >= fileSize || r<0 || read<=0)
     {
-      usedSeconds = now - start;
+      usedSeconds = now - start; 
       preCharCount = idealand_print_transfer_speed(usedSeconds, total, clientSize, fileSize, preCharCount); if (preCharCount == -1) { r = -1; goto free1; }
       if (total + clientSize > fileSize) { idealand_log("file download size greater than remain size.\n"); r = -1; goto free1; }
     }    
